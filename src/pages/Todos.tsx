@@ -51,9 +51,11 @@ export function Todos() {
 
   const handleReorder = useCallback(
     (activeId: string, overId: string) => {
+      const activeTodo = todos.find((t) => t.id === activeId);
       const overTodo = todos.find((t) => t.id === overId);
-      if (overTodo) {
+      if (activeTodo && overTodo) {
         updateTodo.mutate({ id: activeId, input: { order: overTodo.order } });
+        updateTodo.mutate({ id: overId, input: { order: activeTodo.order } });
       }
     },
     [todos, updateTodo]
@@ -107,6 +109,7 @@ export function Todos() {
       />
 
       <TodoForm
+        key={editingTodo?.id ?? 'new'}
         isOpen={showForm}
         onClose={handleCloseForm}
         onSubmit={handleSubmit}

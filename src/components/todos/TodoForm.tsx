@@ -28,7 +28,7 @@ export function TodoForm({ isOpen, onClose, onSubmit, isLoading, todo }: TodoFor
     todo?.dueDate ? toInputDateFormat(todo.dueDate) : ''
   );
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
-    todo?.tags?.map((t) => t.tagId) || []
+    todo?.tags?.map((t) => t.id) || []
   );
   const [titleError, setTitleError] = useState('');
 

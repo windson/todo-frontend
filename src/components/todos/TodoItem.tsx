@@ -92,9 +92,9 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, dragHandleProps }: 
             </Badge>
           )}
 
-          {todo.tags?.map((todoTag) => (
-            <Badge key={todoTag.tagId} color={todoTag.tag.color}>
-              {todoTag.tag.name}
+          {todo.tags?.map((tag) => (
+            <Badge key={tag.id} color={tag.color}>
+              {tag.name}
             </Badge>
           ))}
 

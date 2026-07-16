@@ -43,7 +43,7 @@ export interface Todo {
   updatedAt: string;
   categoryId: string | null;
   category: Category | null;
-  tags: TodoTag[];
+  tags: Tag[];
   order: number;
 }
 
@@ -109,7 +109,7 @@ export interface UpdateTagInput {
 
 export interface BulkUpdateInput {
   ids: string[];
-  action: 'complete' | 'incomplete' | 'delete';
+  operation: 'complete' | 'uncomplete' | 'delete';
 }
 
 export interface ApiResponse<T> {
