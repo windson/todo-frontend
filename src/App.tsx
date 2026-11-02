@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Layout } from '@/components/layout/Layout';
 import { Spinner } from '@/components/ui/Spinner';
 import { Dashboard } from '@/pages/Dashboard';
+import { Analytics } from '@/pages/Analytics';
 import { Todos } from '@/pages/Todos';
 import { Board } from '@/pages/Board';
 import { Calendar } from '@/pages/Calendar';
@@ -90,6 +91,7 @@ function AppRoutes() {
       />
       <Route element={<ProtectedRoutes />}>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/analytics" element={<Analytics />} />
         <Route path="/todos" element={<Todos />} />
         <Route path="/board" element={<Board />} />
         <Route path="/calendar" element={<Calendar />} />

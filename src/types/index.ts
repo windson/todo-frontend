@@ -332,3 +332,52 @@ export interface LoginInput {
 }
 
 export type AuthResponse = User;
+
+// Analytics & data-insight (FEAT-009). Mirrors the backend /api/analytics shape
+// (owned-only aggregates) and the import/export contract.
+export interface CountBucket {
+  key: string;
+  count: number;
+}
+
+export interface TrendPoint {
+  date: string;
+  completed: number;
+  created: number;
+}
+
+export interface Analytics {
+  rangeDays: number;
+  rangeStart: string;
+  totals: {
+    total: number;
+    completed: number;
+    active: number;
+    overdue: number;
+    completionRate: number;
+  };
+  byPriority: CountBucket[];
+  byStatus: CountBucket[];
+  byCategory: CountBucket[];
+  trend: TrendPoint[];
+}
+
+export type ExportFormat = 'json' | 'csv';
+
+export interface ImportSummary {
+  created: {
+    categories: number;
+    tags: number;
+    todos: number;
+  };
+  skipped: {
+    categories: number;
+    tags: number;
+    todos: number;
+  };
+  reused: {
+    categories: number;
+    tags: number;
+  };
+  errors: string[];
+}

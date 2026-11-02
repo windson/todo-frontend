@@ -6,6 +6,7 @@ import {
   FolderOpen,
   TagsIcon,
   CalendarDays,
+  BarChart3,
   Sun,
   CalendarClock,
   AlertCircle,
@@ -25,6 +26,7 @@ const navItems = [
   { path: '/todos', label: 'Todos', icon: ListTodo },
   { path: '/board', label: 'Board', icon: KanbanSquare },
   { path: '/calendar', label: 'Calendar', icon: CalendarDays },
+  { path: '/analytics', label: 'Analytics', icon: BarChart3 },
   { path: '/categories', label: 'Categories', icon: FolderOpen },
   { path: '/tags', label: 'Tags', icon: TagsIcon },
 ];
