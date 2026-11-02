@@ -15,6 +15,17 @@ describe('Markdown', () => {
     expect(link?.getAttribute('href')).toBe('https://example.com');
   });
 
+  it('hardens rendered links with target and rel for safe new-tab opening', () => {
+    const { container } = render(
+      <Markdown content={'[external](https://example.com)'} />
+    );
+
+    const link = container.querySelector('a');
+    expect(link).not.toBeNull();
+    expect(link?.getAttribute('target')).toBe('_blank');
+    expect(link?.getAttribute('rel')).toBe('noopener noreferrer');
+  });
+
   it('renders a bulleted list', () => {
     const { container } = render(<Markdown content={'- one\n- two'} />);
     expect(container.querySelectorAll('li')).toHaveLength(2);
