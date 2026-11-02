@@ -32,6 +32,11 @@ export interface TodoTag {
   tag: Tag;
 }
 
+export interface SubtaskProgress {
+  total: number;
+  completed: number;
+}
+
 export interface Todo {
   id: string;
   title: string;
@@ -45,6 +50,9 @@ export interface Todo {
   category: Category | null;
   tags: Tag[];
   order: number;
+  parentId: string | null;
+  children?: Todo[];
+  progress?: SubtaskProgress;
 }
 
 export interface CreateTodoInput {
@@ -54,6 +62,7 @@ export interface CreateTodoInput {
   dueDate?: string;
   categoryId?: string;
   tagIds?: string[];
+  parentId?: string;
 }
 
 export interface UpdateTodoInput {
@@ -63,6 +72,7 @@ export interface UpdateTodoInput {
   priority?: Priority;
   dueDate?: string | null;
   categoryId?: string | null;
+  parentId?: string | null;
   order?: number;
 }
 

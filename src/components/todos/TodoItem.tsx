@@ -3,6 +3,7 @@ import { cn, getPriorityColor, getPriorityLabel } from '@/lib/utils';
 import { getDueDateLabel, isOverdue } from '@/lib/dates';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Badge } from '@/components/ui/Badge';
+import { SubtaskList } from './SubtaskList';
 import type { Todo } from '@/types';
 
 interface TodoItemProps {
@@ -113,6 +114,10 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, dragHandleProps }: 
             </span>
           )}
         </div>
+
+        {/* Subtasks / checklist with progress indicator. Only shown for
+            top-level todos (subtasks themselves have a parentId). */}
+        {!todo.parentId && <SubtaskList todo={todo} />}
       </div>
     </div>
   );
