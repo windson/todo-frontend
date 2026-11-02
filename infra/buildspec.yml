@@ -1,0 +1,48 @@
+# CodeBuild buildspec for todo-frontend (Lambda Web Function).
+#
+# SAFETY: This buildspec NEVER dumps the whole environment. There is no
+# `printenv`, bare `env`, `set -x`/`set +x`, or any process-wide variable dump.
+# Each step references ONLY the specific variables it needs.
+#
+# Variables supplied by the CodeBuild project (infra/cloudformation/pipeline.yaml):
+#   ARTIFACT_BUCKET - S3 bucket the built .zip is uploaded to
+#   VITE_API_URL    - backend API base URL baked into the SPA at BUILD TIME only
+#                     (public client-side config, not a secret). Vite inlines
+#                     VITE_* vars into dist/ during `bun run build`; it has no
+#                     effect at runtime, so it is exported only for that step.
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 24
+    commands:
+      # Install the Bun package manager (the project uses bun.lock).
+      - curl -fsSL https://bun.sh/install | bash
+      - export PATH="$HOME/.bun/bin:$PATH"
+      # Install exact dependencies from the lockfile.
+      - bun install --frozen-lockfile
+
+  build:
+    commands:
+      - export PATH="$HOME/.bun/bin:$PATH"
+      # Production build. VITE_API_URL is referenced ONLY here so Vite bakes the
+      # backend API base URL into the static assets at build time.
+      - VITE_API_URL="$VITE_API_URL" bun run build
+
+  post_build:
+    commands:
+      # Package only what the Web Function runtime needs: the built SPA (dist/),
+      # the Node static server entrypoint (server.mjs), and package.json (for
+      # the `serve` script / "type": "module"). The server uses Node built-ins
+      # only, so no node_modules are bundled.
+      - ARTIFACT_KEY="todo-frontend/${CODEBUILD_RESOLVED_SOURCE_VERSION}.zip"
+      - zip -r -q app.zip dist server.mjs package.json
+      - aws s3 cp app.zip "s3://${ARTIFACT_BUCKET}/${ARTIFACT_KEY}"
+      # Emit the artifact key so the deploy step can pass it to the app stack.
+      - echo "{\"ArtifactObjectKey\":\"${ARTIFACT_KEY}\"}" > artifact.json
+
+artifacts:
+  files:
+    - artifact.json
+    - infra/appspec.yaml

@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  todo-frontend application tier hosted as an AWS Lambda Web Function (new
+  capability; AWS::Lambda::WebFunction / WebFunctionRevision /
+  WebFunctionEndpoint). The Web Function server process is a tiny Node HTTP
+  static server (server.mjs) that serves the built Vite SPA (dist/) with SPA
+  fallback and PWA assets, listening on PORT. No VPC connectivity is needed: the
+  browser calls the backend Web Function endpoint directly over its public HTTPS
+  URL, and this server only serves static files.
+
+Parameters:
+  PipelineStackName:
+    Type: String
+    Description: Name of the pipeline stack (exports the artifact bucket name).
+  ArtifactObjectKey:
+    Type: String
+    Description: S3 key of the built frontend .zip in the artifact bucket (set by CodeBuild per build).
+  Runtime:
+    Type: String
+    Default: nodejs24.x
+    Description: Lambda Web Function Node.js runtime.
+  FunctionName:
+    Type: String
+    Default: todo-frontend-web
+    AllowedPattern: "^[a-zA-Z0-9][a-zA-Z0-9-_]{0,62}[a-zA-Z0-9]$"
+    Description: Name of the Lambda Web Function.
+  Port:
+    Type: String
+    Default: "8080"
+    Description: Port the Node static server (server.mjs) listens on inside the Web Function.
+  TimeoutSeconds:
+    Type: Number
+    Default: 30
+    MinValue: 3
+    MaxValue: 900
+    Description: Per-request timeout for the Web Function.
+
+Resources:
+  # Least-privilege execution role: CloudWatch Logs only. The static server
+  # makes no AWS API calls, so no further grants are needed.
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: logs
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+
+  WebFunction:
+    Type: AWS::Lambda::WebFunction
+    Properties:
+      FunctionName: !Ref FunctionName
+      Tags:
+        - Key: app
+          Value: todo-frontend
+
+  WebFunctionRevision:
+    Type: AWS::Lambda::WebFunctionRevision
+    Properties:
+      FunctionName: !Ref WebFunction
+      Description: !Sub "Revision for ${ArtifactObjectKey}"
+      BuildConfig:
+        CodeConfig:
+          S3Object:
+            Bucket:
+              Fn::ImportValue: !Sub "${PipelineStackName}-ArtifactBucketName"
+            Key: !Ref ArtifactObjectKey
+        RuntimeConfig:
+          Runtime: !Ref Runtime
+      ServiceConfig:
+        ExecutionRoleArn: !GetAtt ExecutionRole.Arn
+        TimeoutSeconds: !Ref TimeoutSeconds
+        # No secrets here: the SPA talks to the backend over its public HTTPS
+        # endpoint, and VITE_API_URL is baked into dist/ at build time. Only the
+        # two runtime vars the static server needs are declared.
+        EnvironmentVariables:
+          NODE_ENV: production
+          PORT: !Ref Port
+
+  WebFunctionEndpoint:
+    Type: AWS::Lambda::WebFunctionEndpoint
+    Properties:
+      FunctionName: !Ref WebFunction
+      EndpointName: !Sub "${FunctionName}-endpoint"
+      EndpointType: HomeRegion
+      # The SPA is public (static assets); no IAM auth on the endpoint.
+      AuthType: ApplicationManaged
+      RevisionWeights:
+        - RevisionId: !GetAtt WebFunctionRevision.RevisionId
+          Weight: 100
+
+Outputs:
+  EndpointDomainName:
+    Description: HTTPS domain name of the frontend Web Function endpoint (serves the SPA).
+    Value: !GetAtt WebFunctionEndpoint.DomainName
+    Export:
+      Name: !Sub "${AWS::StackName}-EndpointDomainName"
+  RevisionId:
+    Description: The current Web Function revision id (used by appspec cutover).
+    Value: !GetAtt WebFunctionRevision.RevisionId
+    Export:
+      Name: !Sub "${AWS::StackName}-RevisionId"
