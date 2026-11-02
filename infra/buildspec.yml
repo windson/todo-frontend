@@ -39,10 +39,16 @@ phases:
       - ARTIFACT_KEY="todo-frontend/${CODEBUILD_RESOLVED_SOURCE_VERSION}.zip"
       - zip -r -q app.zip dist server.mjs package.json
       - aws s3 cp app.zip "s3://${ARTIFACT_BUCKET}/${ARTIFACT_KEY}"
-      # Emit the artifact key so the deploy step can pass it to the app stack.
-      - echo "{\"ArtifactObjectKey\":\"${ARTIFACT_KEY}\"}" > artifact.json
+      # Print the artifact key so an operator can copy it from the build log and
+      # pass it to the app stack as the ArtifactObjectKey parameter. The handoff
+      # is MANUAL: this CodeBuild project is Artifacts: NO_ARTIFACTS (it uploads
+      # the .zip itself via the `aws s3 cp` above), so there is no CodeBuild
+      # `artifacts:` export and no automated pipeline carrying the key onward.
+      - echo "ArtifactObjectKey=${ARTIFACT_KEY}"
 
-artifacts:
-  files:
-    - artifact.json
-    - infra/appspec.yaml
+# NOTE: no top-level `artifacts:` block. The CodeBuild project in
+# infra/cloudformation/pipeline.yaml sets `Artifacts: Type: NO_ARTIFACTS`, which
+# tells CodeBuild to produce no build-output artifact; any `artifacts: files:`
+# block would be silently discarded. The .zip is uploaded explicitly with
+# `aws s3 cp`, and the ArtifactObjectKey is read from the build log (see above)
+# and passed by hand to the app stack. See infra/README.md "Build and cutover".

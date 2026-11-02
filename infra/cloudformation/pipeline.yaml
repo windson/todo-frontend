@@ -5,8 +5,13 @@ Description: >-
   infra/buildspec.yml (bun install -> bun run build with VITE_API_URL baked at
   build time -> zip dist/ + server.mjs + package.json -> aws s3 cp); and a
   CodeDeploy application (ComputePlatform Lambda) with least-privilege roles.
-  No plaintext secrets: VITE_API_URL is a public build-time config value (the
-  backend endpoint URL), not a secret.
+  This is NOT an automated pipeline: there is no AWS::CodePipeline and no
+  CodeDeploy DeploymentGroup. The CodeDeploy application is a placeholder for a
+  future classic-AWS::Lambda::Function path; the Web Function cutover is a
+  CloudFormation update to WebFunctionEndpoint RevisionWeights in app.yaml, and
+  the build-to-cutover handoff is manual (see infra/README.md "Build and
+  cutover"). No plaintext secrets: VITE_API_URL is a public build-time config
+  value (the backend endpoint URL), not a secret.
 
 Parameters:
   SourceRepositoryUrl:
@@ -233,6 +238,13 @@ Resources:
       ManagedPolicyArns:
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSCodeDeployRoleForLambda"
 
+  # PLACEHOLDER (intentional): this CodeDeploy application has no
+  # DeploymentGroup and does NOT perform the Web Function cutover. Lambda Web
+  # Functions shift traffic natively via WebFunctionEndpoint RevisionWeights
+  # (see app.yaml), which classic CodeDeploy Lambda deployment groups -- which
+  # act on alias versions of a traditional AWS::Lambda::Function -- cannot
+  # drive. It is kept to reserve a CodeDeploy path for a future classic-Lambda
+  # migration. See infra/README.md "Why there is no CodeDeploy DeploymentGroup".
   CodeDeployApplication:
     Type: AWS::CodeDeploy::Application
     Properties:
