@@ -1,5 +1,15 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, ListTodo, FolderOpen, TagsIcon, X } from 'lucide-react';
+import {
+  LayoutDashboard,
+  ListTodo,
+  FolderOpen,
+  TagsIcon,
+  CalendarDays,
+  Sun,
+  CalendarClock,
+  AlertCircle,
+  X,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCategories } from '@/hooks/useCategories';
 import { useTags } from '@/hooks/useTags';
@@ -12,8 +22,15 @@ interface SidebarProps {
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/todos', label: 'Todos', icon: ListTodo },
+  { path: '/calendar', label: 'Calendar', icon: CalendarDays },
   { path: '/categories', label: 'Categories', icon: FolderOpen },
   { path: '/tags', label: 'Tags', icon: TagsIcon },
+];
+
+const smartLists = [
+  { to: '/todos?dueFilter=today', label: 'Today', icon: Sun },
+  { to: '/todos?dueFilter=upcoming', label: 'Upcoming', icon: CalendarClock },
+  { to: '/todos?dueFilter=overdue', label: 'Overdue', icon: AlertCircle },
 ];
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
@@ -70,6 +87,32 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               </NavLink>
             ))}
           </nav>
+
+          <div className="mt-8">
+            <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+              Smart Lists
+            </h3>
+            <nav className="space-y-1">
+              {smartLists.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                      isActive
+                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                    )
+                  }
+                >
+                  <item.icon className="h-5 w-5" />
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+          </div>
 
           {categories && categories.length > 0 && (
             <div className="mt-8">

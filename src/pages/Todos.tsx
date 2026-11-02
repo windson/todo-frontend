@@ -11,6 +11,9 @@ import type { Todo, TodoFilters as TodoFiltersType, CreateTodoInput, UpdateTodoI
 export function Todos() {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || undefined;
+  const dueFilterParam = searchParams.get('dueFilter') as
+    | TodoFiltersType['dueFilter']
+    | null;
 
   const [filters, setFilters] = useState<TodoFiltersType>({
     search: searchQuery,
@@ -22,7 +25,11 @@ export function Todos() {
   const [showForm, setShowForm] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
-  const currentFilters = { ...filters, search: searchQuery || filters.search };
+  const currentFilters = {
+    ...filters,
+    search: searchQuery || filters.search,
+    dueFilter: dueFilterParam ?? filters.dueFilter,
+  };
   const { data, isLoading } = useTodos(currentFilters);
   const createTodo = useCreateTodo();
   const updateTodo = useUpdateTodo();

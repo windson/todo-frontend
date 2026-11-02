@@ -5,7 +5,7 @@ import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
 import { useCategories } from '@/hooks/useCategories';
 import { useTags } from '@/hooks/useTags';
-import { Priority, type Todo, type CreateTodoInput, type UpdateTodoInput } from '@/types';
+import { Priority, RecurrenceRule, type Todo, type CreateTodoInput, type UpdateTodoInput } from '@/types';
 import { toInputDateFormat } from '@/lib/dates';
 
 interface TodoFormProps {
@@ -24,8 +24,17 @@ export function TodoForm({ isOpen, onClose, onSubmit, isLoading, todo }: TodoFor
   const [description, setDescription] = useState(todo?.description || '');
   const [priority, setPriority] = useState<Priority>(todo?.priority || Priority.MEDIUM);
   const [categoryId, setCategoryId] = useState(todo?.categoryId || '');
+  const [startDate, setStartDate] = useState(
+    todo?.startDate ? toInputDateFormat(todo.startDate) : ''
+  );
   const [dueDate, setDueDate] = useState(
     todo?.dueDate ? toInputDateFormat(todo.dueDate) : ''
+  );
+  const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | ''>(
+    todo?.recurrenceRule ?? ''
+  );
+  const [recurrenceInterval, setRecurrenceInterval] = useState(
+    String(todo?.recurrenceInterval ?? 1)
   );
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
     todo?.tags?.map((t) => t.id) || []
@@ -42,13 +51,18 @@ export function TodoForm({ isOpen, onClose, onSubmit, isLoading, todo }: TodoFor
       return;
     }
 
+    const intervalValue = Math.max(1, parseInt(recurrenceInterval, 10) || 1);
+
     if (isEdit) {
       const input: UpdateTodoInput = {
         title: title.trim(),
         description: description.trim() || null,
         priority,
         categoryId: categoryId || null,
+        startDate: startDate || null,
         dueDate: dueDate || null,
+        recurrenceRule: recurrenceRule || null,
+        recurrenceInterval: recurrenceRule ? intervalValue : undefined,
       };
       onSubmit(input);
     } else {
@@ -57,7 +71,10 @@ export function TodoForm({ isOpen, onClose, onSubmit, isLoading, todo }: TodoFor
         description: description.trim() || undefined,
         priority,
         categoryId: categoryId || undefined,
+        startDate: startDate || undefined,
         dueDate: dueDate || undefined,
+        recurrenceRule: recurrenceRule || undefined,
+        recurrenceInterval: recurrenceRule ? intervalValue : undefined,
         tagIds: selectedTagIds.length > 0 ? selectedTagIds : undefined,
       };
       onSubmit(input);
@@ -146,12 +163,46 @@ export function TodoForm({ isOpen, onClose, onSubmit, isLoading, todo }: TodoFor
           />
         </div>
 
-        <Input
-          label="Due Date"
-          type="date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-        />
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="Start Date"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+
+          <Input
+            label="Due Date"
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Select
+            label="Repeat"
+            value={recurrenceRule}
+            onChange={(e) => setRecurrenceRule(e.target.value as RecurrenceRule | '')}
+            placeholder="Does not repeat"
+            options={[
+              { value: RecurrenceRule.DAILY, label: 'Daily' },
+              { value: RecurrenceRule.WEEKLY, label: 'Weekly' },
+              { value: RecurrenceRule.MONTHLY, label: 'Monthly' },
+            ]}
+          />
+
+          {recurrenceRule && (
+            <Input
+              label="Every (interval)"
+              type="number"
+              min={1}
+              max={365}
+              value={recurrenceInterval}
+              onChange={(e) => setRecurrenceInterval(e.target.value)}
+            />
+          )}
+        </div>
 
         {tags && tags.length > 0 && (
           <div>

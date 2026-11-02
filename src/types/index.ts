@@ -7,6 +7,14 @@ export const Priority = {
 
 export type Priority = (typeof Priority)[keyof typeof Priority];
 
+export const RecurrenceRule = {
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+} as const;
+
+export type RecurrenceRule = (typeof RecurrenceRule)[keyof typeof RecurrenceRule];
+
 export interface Category {
   id: string;
   name: string;
@@ -43,7 +51,11 @@ export interface Todo {
   description: string | null;
   completed: boolean;
   priority: Priority;
+  startDate: string | null;
   dueDate: string | null;
+  recurrenceRule: RecurrenceRule | null;
+  recurrenceInterval: number;
+  recurrenceGeneratedId?: string | null;
   createdAt: string;
   updatedAt: string;
   categoryId: string | null;
@@ -59,7 +71,10 @@ export interface CreateTodoInput {
   title: string;
   description?: string;
   priority?: Priority;
+  startDate?: string;
   dueDate?: string;
+  recurrenceRule?: RecurrenceRule;
+  recurrenceInterval?: number;
   categoryId?: string;
   tagIds?: string[];
   parentId?: string;
@@ -70,7 +85,10 @@ export interface UpdateTodoInput {
   description?: string | null;
   completed?: boolean;
   priority?: Priority;
+  startDate?: string | null;
   dueDate?: string | null;
+  recurrenceRule?: RecurrenceRule | null;
+  recurrenceInterval?: number;
   categoryId?: string | null;
   parentId?: string | null;
   order?: number;
@@ -84,6 +102,7 @@ export interface TodoFilters {
   tagId?: string;
   dueBefore?: string;
   dueAfter?: string;
+  dueFilter?: 'today' | 'upcoming' | 'overdue';
   sortBy?: 'createdAt' | 'dueDate' | 'priority' | 'title' | 'order';
   sortOrder?: 'asc' | 'desc';
   limit?: number;

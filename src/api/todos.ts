@@ -16,6 +16,7 @@ export async function getTodos(filters?: TodoFilters): Promise<PaginatedResponse
     if (filters.tagId) params.tagId = filters.tagId;
     if (filters.dueBefore) params.dueBefore = filters.dueBefore;
     if (filters.dueAfter) params.dueAfter = filters.dueAfter;
+    if (filters.dueFilter) params.dueFilter = filters.dueFilter;
     if (filters.sortBy) params.sortBy = filters.sortBy;
     if (filters.sortOrder) params.sortOrder = filters.sortOrder;
     if (filters.limit !== undefined) params.limit = String(filters.limit);

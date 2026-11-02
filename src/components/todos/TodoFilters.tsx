@@ -18,7 +18,8 @@ export function TodoFilters({ filters, onFilterChange }: TodoFiltersProps) {
     filters.priority !== undefined ||
     filters.categoryId !== undefined ||
     filters.dueBefore !== undefined ||
-    filters.dueAfter !== undefined;
+    filters.dueAfter !== undefined ||
+    filters.dueFilter !== undefined;
 
   const handleClear = () => {
     onFilterChange({
@@ -79,6 +80,24 @@ export function TodoFilters({ filters, onFilterChange }: TodoFiltersProps) {
         options={
           categories?.map((c) => ({ value: c.id, label: c.name })) || []
         }
+      />
+
+      <Select
+        label="Due"
+        value={filters.dueFilter || ''}
+        onChange={(e) => {
+          const val = e.target.value as TodoFiltersType['dueFilter'] | '';
+          onFilterChange({
+            ...filters,
+            dueFilter: val || undefined,
+          });
+        }}
+        placeholder="Any time"
+        options={[
+          { value: 'today', label: 'Today' },
+          { value: 'upcoming', label: 'Upcoming' },
+          { value: 'overdue', label: 'Overdue' },
+        ]}
       />
 
       <Input
