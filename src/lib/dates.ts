@@ -29,7 +29,7 @@ export function getDueDateLabel(dateString: string): string {
 
 export function isOverdue(dateString: string): boolean {
   const date = parseISO(dateString);
-  return !isPast(date) && !isToday(date);
+  return isPast(date) && !isToday(date);
 }
 
 export function toInputDateFormat(dateString: string): string {
