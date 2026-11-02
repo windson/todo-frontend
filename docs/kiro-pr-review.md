@@ -4,9 +4,9 @@ The `Kiro PR Review` GitHub Actions workflow runs a read-only Kiro CLI agent whe
 
 ## Files
 
-- `.github/workflows/kiro-pr-review.yml` resolves the exact PR revision, keeps trusted automation at the workspace root, checks out untrusted PR code under `review-target/`, invokes Kiro headlessly, and creates or updates one PR comment.
-- `.kiro/agents/pr-reviewer.json` limits the agent to repository reads and gives it focused review instructions.
-- `.github/scripts/extract-kiro-review.py` extracts the final Markdown response from Kiro's `stream-json` output.
+- `.github/workflows/kiro-pr-review.yml` resolves the exact PR revision, keeps trusted automation at the workspace root, checks out untrusted PR code under `review-target/`, invokes Kiro headlessly, and posts each validated finding as an inline review comment on the affected file and line.
+- `.kiro/agents/pr-reviewer.json` limits the agent to repository reads and requires structured findings with diff-relative locations.
+- `.github/scripts/extract-kiro-review.py` extracts Kiro's structured response from `stream-json` output and rejects paths or lines that are not present on the PR diff.
 
 ## Required secret
 
@@ -28,15 +28,15 @@ After the workflow exists on the default branch, review an existing PR with:
 gh workflow run "Kiro PR Review" --repo windson/todo-frontend -f pr_number=1
 ```
 
-The workflow updates its prior `<!-- kiro-pr-review -->` comment rather than adding duplicate comments after every push.
+Each actionable finding is attached to its file and line in the pull request diff. A later run replaces prior Kiro inline comments, and a clean review posts no summary comment.
 
 ## Verifying automatic reviews
 
-Open or update a non-draft pull request, then inspect the latest run and the bot's single current comment:
+Open or update a non-draft pull request, then inspect the latest run and inline review comments:
 
 ```sh
 gh run list --workflow "Kiro PR Review" --limit 1
-gh pr view --comments
+gh api repos/windson/todo-frontend/pulls/2/comments
 ```
 
-A successful run contains `Resolve pull request`, `Run Kiro review`, and `Create or update review comment` steps. Subsequent commits update the existing marked comment instead of creating another one.
+A successful run contains `Resolve pull request`, `Run Kiro review`, and `Create inline review comments` steps. Subsequent commits replace the existing marked inline comments instead of creating stale duplicates.
