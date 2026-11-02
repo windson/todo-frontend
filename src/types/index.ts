@@ -212,6 +212,10 @@ export interface UpdateTodoInput {
   parentId?: string | null;
   assigneeId?: string | null;
   order?: number;
+  // Optimistic-concurrency token (FEAT-010): the todo's last-seen updatedAt.
+  // When sent, the backend returns 409 if the todo changed since. Optional, so
+  // omitting it keeps the previous unconditional update behavior.
+  expectedUpdatedAt?: string | null;
 }
 
 export interface TodoFilters {
@@ -231,11 +235,22 @@ export interface TodoFilters {
   offset?: number;
 }
 
+export interface PaginationLinks {
+  first?: string;
+  prev?: string;
+  next?: string;
+  last?: string;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;
   limit: number;
   offset: number;
+  // RFC 5988 pagination links parsed from the response Link header (FEAT-010).
+  // Optional and backward compatible; present when the server emitted a Link
+  // header.
+  links?: PaginationLinks;
 }
 
 export interface CreateCategoryInput {

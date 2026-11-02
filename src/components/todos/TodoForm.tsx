@@ -64,6 +64,9 @@ export function TodoForm({ isOpen, onClose, onSubmit, isLoading, todo }: TodoFor
         dueDate: dueDate || null,
         recurrenceRule: recurrenceRule || null,
         recurrenceInterval: recurrenceRule ? intervalValue : undefined,
+        // Optimistic concurrency (FEAT-010): send the version we loaded so the
+        // backend can reject the save with 409 if the todo changed meanwhile.
+        expectedUpdatedAt: todo?.updatedAt,
       };
       onSubmit(input);
     } else {
