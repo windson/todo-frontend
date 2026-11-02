@@ -29,3 +29,13 @@ gh workflow run "Kiro PR Review" --repo windson/todo-frontend -f pr_number=1
 ```
 
 The workflow updates its prior `<!-- kiro-pr-review -->` comment rather than adding duplicate comments after every push.
+## Verifying automatic reviews
+
+Open or update a non-draft pull request, then inspect the latest run and the bot's single current comment:
+
+```sh
+gh run list --workflow "Kiro PR Review" --limit 1
+gh pr view --comments
+```
+
+A successful run contains `Resolve pull request`, `Run Kiro review`, and `Create or update review comment` steps. Subsequent commits update the existing marked comment instead of creating another one.
