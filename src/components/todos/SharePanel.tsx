@@ -11,6 +11,7 @@ import {
   useDeleteShare,
 } from '@/hooks/useShares';
 import { useUpdateTodo } from '@/hooks/useTodos';
+import { useAuth } from '@/hooks/useAuth';
 import { ShareRole, type Todo } from '@/types';
 
 interface SharePanelProps {
@@ -30,6 +31,7 @@ export function SharePanel({ todo, canManage }: SharePanelProps) {
   const updateShare = useUpdateShare(todo.id);
   const deleteShare = useDeleteShare(todo.id);
   const updateTodo = useUpdateTodo();
+  const { user } = useAuth();
 
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<ShareRole>(ShareRole.VIEWER);
@@ -60,6 +62,9 @@ export function SharePanel({ todo, canManage }: SharePanelProps) {
   // (if set). We show the owner as "Me" only when the current user can manage.
   const assignableOptions = [
     { value: '', label: 'Unassigned' },
+    ...(canManage && user
+      ? [{ value: user.id, label: `Me (${user.name ?? user.email})` }]
+      : []),
     ...(shares ?? []).map((share) => ({
       value: share.userId,
       label: share.user.name ?? share.user.email,

@@ -42,12 +42,14 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onOpenDetail, dragH
           />
         </div>
       )}
-      <div
-        {...dragHandleProps}
-        className="flex items-center cursor-grab pt-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <GripVertical className="h-5 w-5" />
-      </div>
+      {dragHandleProps && (
+        <div
+          {...dragHandleProps}
+          className="flex items-center cursor-grab pt-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <GripVertical className="h-5 w-5" />
+        </div>
+      )}
 
       <div className={cn('w-1 self-stretch rounded-full flex-shrink-0', getPriorityColor(todo.priority))} />
 

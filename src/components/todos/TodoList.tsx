@@ -27,6 +27,7 @@ interface TodoListProps {
   onEdit: (todo: Todo) => void;
   onDelete: (id: string) => void;
   onReorder: (activeId: string, overId: string) => void;
+  reorderEnabled?: boolean;
   onOpenDetail?: (todo: Todo) => void;
   onAddTodo?: () => void;
   selectable?: boolean;
@@ -43,6 +44,7 @@ function SortableTodoItem({
   selectable,
   selected,
   onSelectChange,
+  reorderEnabled,
 }: {
   todo: Todo;
   onToggle: (id: string, completed: boolean) => void;
@@ -52,6 +54,7 @@ function SortableTodoItem({
   selectable?: boolean;
   selected?: boolean;
   onSelectChange?: (id: string, selected: boolean) => void;
+  reorderEnabled: boolean;
 }) {
   const {
     attributes,
@@ -59,7 +62,7 @@ function SortableTodoItem({
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: todo.id });
+  } = useSortable({ id: todo.id, disabled: !reorderEnabled });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -74,7 +77,7 @@ function SortableTodoItem({
         onEdit={onEdit}
         onDelete={onDelete}
         onOpenDetail={onOpenDetail}
-        dragHandleProps={{ ...attributes, ...listeners }}
+        dragHandleProps={reorderEnabled ? { ...attributes, ...listeners } : undefined}
         selectable={selectable}
         selected={selected}
         onSelectChange={onSelectChange}
@@ -95,6 +98,7 @@ export function TodoList({
   selectable,
   selectedIds,
   onSelectChange,
+  reorderEnabled = false,
 }: TodoListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -105,7 +109,7 @@ export function TodoList({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (over && active.id !== over.id) {
+    if (reorderEnabled && over && active.id !== over.id) {
       onReorder(String(active.id), String(over.id));
     }
   };
@@ -152,6 +156,7 @@ export function TodoList({
               selectable={selectable}
               selected={selectedIds?.includes(todo.id)}
               onSelectChange={onSelectChange}
+              reorderEnabled={reorderEnabled}
             />
           ))}
         </div>

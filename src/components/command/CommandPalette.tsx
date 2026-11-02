@@ -134,18 +134,11 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
   }, [commands, query]);
 
   useEffect(() => {
-    if (isOpen) {
-      setQuery('');
-      setActiveIndex(0);
-      // Focus the input after the modal paints.
-      const timer = setTimeout(() => inputRef.current?.focus(), 0);
-      return () => clearTimeout(timer);
-    }
+    if (!isOpen) return;
+    // Focus the input after the modal paints.
+    const timer = setTimeout(() => inputRef.current?.focus(), 0);
+    return () => clearTimeout(timer);
   }, [isOpen]);
-
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [query]);
 
   const runCommand = (command: Command) => {
     onClose();
@@ -179,7 +172,10 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             aria-label={t('commandPalette.title')}
             placeholder={t('commandPalette.placeholder')}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActiveIndex(0);
+            }}
             onKeyDown={handleKeyDown}
             className={cn(
               'w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 text-sm transition-colors',

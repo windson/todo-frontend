@@ -21,7 +21,7 @@ export function toSavedViewFilters(filters: TodoFilters): SavedViewFilters {
   if (filters.assigneeId) result.assigneeId = filters.assigneeId;
   if (filters.sharedWithMe !== undefined) result.sharedWithMe = filters.sharedWithMe ? 'true' : 'false';
   if (filters.dueFilter) result.dueFilter = filters.dueFilter;
-  if (filters.sortBy && filters.sortBy !== 'order') result.sortBy = filters.sortBy;
+  if (filters.sortBy) result.sortBy = filters.sortBy;
   if (filters.sortOrder) result.sortOrder = filters.sortOrder;
 
   return result;

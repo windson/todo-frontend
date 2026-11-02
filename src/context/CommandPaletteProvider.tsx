@@ -56,7 +56,7 @@ export function CommandPaletteProvider({ children }: { children: ReactNode }) {
   return (
     <CommandPaletteContext.Provider value={value}>
       {children}
-      <CommandPalette isOpen={isOpen} onClose={close} />
+      {isOpen && <CommandPalette isOpen onClose={close} />}
     </CommandPaletteContext.Provider>
   );
 }

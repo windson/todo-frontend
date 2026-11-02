@@ -277,6 +277,7 @@ export type BulkUpdateInput =
   | { operation: 'complete'; ids: string[] }
   | { operation: 'uncomplete'; ids: string[] }
   | { operation: 'delete'; ids: string[] }
+  | { operation: 'reorder'; ids: string[] }
   | { operation: 'setPriority'; ids: string[]; priority: Priority }
   | { operation: 'setCategory'; ids: string[]; categoryId: string | null }
   | { operation: 'addTags'; ids: string[]; tagIds: string[] }
@@ -297,7 +298,7 @@ export interface SavedViewFilters {
   assigneeId?: string;
   sharedWithMe?: 'true' | 'false';
   dueFilter?: 'today' | 'upcoming' | 'overdue';
-  sortBy?: 'createdAt' | 'dueDate' | 'priority' | 'title';
+  sortBy?: 'createdAt' | 'dueDate' | 'priority' | 'title' | 'order';
   sortOrder?: 'asc' | 'desc';
 }
 

@@ -1,7 +1,8 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useTodos, useCreateTodo, useUpdateTodo, useDeleteTodo } from '@/hooks/useTodos';
+import { arrayMove } from '@dnd-kit/sortable';
+import { useTodos, useCreateTodo, useUpdateTodo, useDeleteTodo, useBulkUpdate } from '@/hooks/useTodos';
 import { TodoList } from '@/components/todos/TodoList';
 import { TodoForm } from '@/components/todos/TodoForm';
 import { TodoFilters } from '@/components/todos/TodoFilters';
@@ -23,8 +24,9 @@ export function Todos() {
 
   const [filters, setFilters] = useState<TodoFiltersType>({
     search: searchQuery,
-    sortBy: 'createdAt',
-    sortOrder: 'desc',
+    sortBy: 'order',
+    sortOrder: 'asc',
+    dueFilter: dueFilterParam ?? undefined,
     limit: 50,
   });
 
@@ -49,6 +51,23 @@ export function Todos() {
     }
   }, [newParam, setSearchParams]);
 
+  const handleFilterChange = useCallback(
+    (nextFilters: TodoFiltersType) => {
+      setFilters(nextFilters);
+      if (dueFilterParam) {
+        setSearchParams(
+          (previous) => {
+            const next = new URLSearchParams(previous);
+            next.delete('dueFilter');
+            return next;
+          },
+          { replace: true }
+        );
+      }
+    },
+    [dueFilterParam, setSearchParams]
+  );
+
   const currentFilters = {
     ...filters,
     search: searchQuery || filters.search,
@@ -58,8 +77,21 @@ export function Todos() {
   const createTodo = useCreateTodo();
   const updateTodo = useUpdateTodo();
   const deleteTodo = useDeleteTodo();
+  const bulkUpdate = useBulkUpdate();
 
-  const todos = data?.data || [];
+  const todos = useMemo(() => data?.data ?? [], [data?.data]);
+  const reorderEnabled =
+    currentFilters.sharedWithMe === false &&
+    !currentFilters.search &&
+    currentFilters.completed === undefined &&
+    currentFilters.priority === undefined &&
+    currentFilters.categoryId === undefined &&
+    currentFilters.tagId === undefined &&
+    currentFilters.assigneeId === undefined &&
+    currentFilters.dueBefore === undefined &&
+    currentFilters.dueAfter === undefined &&
+    currentFilters.dueFilter === undefined &&
+    (data?.total ?? 0) === todos.length;
 
   const handleToggle = useCallback(
     (id: string, completed: boolean) => {
@@ -86,14 +118,17 @@ export function Todos() {
 
   const handleReorder = useCallback(
     (activeId: string, overId: string) => {
-      const activeTodo = todos.find((t) => t.id === activeId);
-      const overTodo = todos.find((t) => t.id === overId);
-      if (activeTodo && overTodo) {
-        updateTodo.mutate({ id: activeId, input: { order: overTodo.order } });
-        updateTodo.mutate({ id: overId, input: { order: activeTodo.order } });
-      }
+      const activeIndex = todos.findIndex((todo) => todo.id === activeId);
+      const overIndex = todos.findIndex((todo) => todo.id === overId);
+      if (activeIndex === -1 || overIndex === -1) return;
+
+      const reordered = arrayMove(todos, activeIndex, overIndex);
+      bulkUpdate.mutate({
+        operation: 'reorder',
+        ids: reordered.map((todo) => todo.id),
+      });
     },
-    [todos, updateTodo]
+    [bulkUpdate, todos]
   );
 
   const handleSelectChange = useCallback((id: string, selected: boolean) => {
@@ -155,9 +190,9 @@ export function Todos() {
         </div>
       </div>
 
-      <SavedViews filters={currentFilters} onApply={setFilters} />
+      <SavedViews filters={currentFilters} onApply={handleFilterChange} />
 
-      <TodoFilters filters={currentFilters} onFilterChange={setFilters} />
+      <TodoFilters filters={currentFilters} onFilterChange={handleFilterChange} />
 
       {selectMode && (
         <BulkToolbar selectedIds={selectedIds} onClear={clearSelection} />
@@ -170,6 +205,7 @@ export function Todos() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onReorder={handleReorder}
+        reorderEnabled={reorderEnabled}
         onOpenDetail={handleOpenDetail}
         onAddTodo={() => setShowForm(true)}
         selectable={selectMode}

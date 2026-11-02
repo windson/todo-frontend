@@ -9,7 +9,7 @@ import { resolve } from 'node:path';
  * build configuration instead.
  */
 describe('PWA build configuration', () => {
-  const config = readFileSync(resolve(__dirname, '../../vite.config.ts'), 'utf-8');
+  const config = readFileSync(resolve(import.meta.dirname, '../../vite.config.ts'), 'utf-8');
 
   it('registers the vite-plugin-pwa plugin', () => {
     expect(config).toContain("from 'vite-plugin-pwa'");

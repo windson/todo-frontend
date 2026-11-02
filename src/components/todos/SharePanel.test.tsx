@@ -24,6 +24,12 @@ vi.mock('@/api/todos', () => ({
   bulkUpdateTodos: vi.fn(),
 }));
 
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { id: 'u-1', email: 'owner@example.com', name: 'Owner' },
+  }),
+}));
+
 vi.mock('react-hot-toast', () => ({
   default: { success: vi.fn(), error: vi.fn() },
 }));
