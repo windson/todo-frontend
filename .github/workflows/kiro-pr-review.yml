@@ -3,6 +3,8 @@ name: Kiro PR Review
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
+  repository_dispatch:
+    types: [kiro-pr-review]
   workflow_dispatch:
     inputs:
       pr_number:
@@ -12,16 +14,16 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
+  pull-requests: read
 
 concurrency:
-  group: kiro-pr-review-${{ github.event.pull_request.number || inputs.pr_number }}
+  group: kiro-pr-review-${{ github.event.pull_request.number || github.event.client_payload.pr_number || inputs.pr_number }}
   cancel-in-progress: true
 
 jobs:
   review:
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
 
     steps:
@@ -29,7 +31,7 @@ jobs:
         id: pr
         uses: actions/github-script@v9.0.0
         env:
-          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+          PR_NUMBER: ${{ github.event.pull_request.number || github.event.client_payload.pr_number || inputs.pr_number }}
         with:
           script: |
             const prNumber = Number(process.env.PR_NUMBER);
@@ -131,12 +133,21 @@ jobs:
             "$RUNNER_TEMP/kiro-review.json" \
             --exit-code "$cli_status"
 
+      - name: Generate reviewer bot token
+        id: reviewer-token
+        if: steps.kiro.outcome == 'success'
+        uses: actions/create-github-app-token@v3.3.0
+        with:
+          client-id: ${{ vars.KIRO_REVIEWER_CLIENT_ID }}
+          private-key: ${{ secrets.KIRO_REVIEWER_PRIVATE_KEY }}
+
       - name: Create inline review comments
         if: steps.kiro.outcome == 'success' && steps.pr.outputs.number != ''
         uses: actions/github-script@v9.0.0
         env:
           PR_NUMBER: ${{ steps.pr.outputs.number }}
         with:
+          github-token: ${{ steps.reviewer-token.outputs.token }}
           script: |
             const fs = require('fs');
             const marker = '<!-- kiro-inline-review -->';
