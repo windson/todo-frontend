@@ -8,6 +8,14 @@ vi.mock('@/hooks/useCategories', () => ({
 vi.mock('@/hooks/useTags', () => ({
   useTags: () => ({ data: [] }),
 }));
+// The edit view embeds RemindersSection, which uses these hooks; stub them so
+// the form renders without a QueryClientProvider.
+vi.mock('@/hooks/useReminders', () => ({
+  useReminders: () => ({ data: [], isLoading: false }),
+  useCreateReminder: () => ({ mutate: vi.fn(), isPending: false }),
+  useUpdateReminder: () => ({ mutate: vi.fn(), isPending: false }),
+  useDeleteReminder: () => ({ mutate: vi.fn(), isPending: false }),
+}));
 
 import { TodoForm } from '@/components/todos/TodoForm';
 import { Priority, RecurrenceRule, type Todo } from '@/types';

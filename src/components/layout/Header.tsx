@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Search, Sun, Moon, Menu, LogOut, User as UserIcon } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth, useLogout } from '@/hooks/useAuth';
+import { NotificationsBell } from '@/components/layout/NotificationsBell';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
@@ -91,6 +92,8 @@ export function Header({ onSearch, searchValue, onToggleSidebar }: HeaderProps) 
               <Sun className="h-5 w-5" />
             )}
           </button>
+
+          <NotificationsBell />
 
           <div className="relative" ref={menuRef}>
             <button

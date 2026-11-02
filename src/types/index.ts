@@ -110,6 +110,43 @@ export interface ActivityLogEntry {
   createdAt: string;
 }
 
+export const ReminderChannel = {
+  INAPP: 'INAPP',
+  EMAIL: 'EMAIL',
+  PUSH: 'PUSH',
+} as const;
+
+export type ReminderChannel = (typeof ReminderChannel)[keyof typeof ReminderChannel];
+
+export interface Reminder {
+  id: string;
+  remindAt: string;
+  channel: ReminderChannel;
+  sentAt: string | null;
+  todoId: string;
+  userId: string;
+  createdAt: string;
+}
+
+export interface CreateReminderInput {
+  remindAt: string;
+  channel?: ReminderChannel;
+}
+
+export interface UpdateReminderInput {
+  remindAt?: string;
+  channel?: ReminderChannel;
+}
+
+export interface Notification {
+  id: string;
+  type: string;
+  payload: Record<string, unknown> | null;
+  read: boolean;
+  userId: string;
+  createdAt: string;
+}
+
 export interface CreateTodoInput {
   title: string;
   description?: string;

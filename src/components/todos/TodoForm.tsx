@@ -3,6 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
+import { RemindersSection } from '@/components/todos/RemindersSection';
 import { useCategories } from '@/hooks/useCategories';
 import { useTags } from '@/hooks/useTags';
 import { Priority, RecurrenceRule, type Todo, type CreateTodoInput, type UpdateTodoInput } from '@/types';
@@ -230,6 +231,12 @@ export function TodoForm({ isOpen, onClose, onSubmit, isLoading, todo }: TodoFor
                 </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {isEdit && todo && (
+          <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
+            <RemindersSection todoId={todo.id} />
           </div>
         )}
       </form>
