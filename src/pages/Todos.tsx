@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useTodos, useCreateTodo, useUpdateTodo, useDeleteTodo } from '@/hooks/useTodos';
 import { TodoList } from '@/components/todos/TodoList';
 import { TodoForm } from '@/components/todos/TodoForm';
@@ -12,8 +13,10 @@ import { Plus, CheckSquare } from 'lucide-react';
 import type { Todo, TodoFilters as TodoFiltersType, CreateTodoInput, UpdateTodoInput } from '@/types';
 
 export function Todos() {
-  const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || undefined;
+  const newParam = searchParams.get('new');
   const dueFilterParam = searchParams.get('dueFilter') as
     | TodoFiltersType['dueFilter']
     | null;
@@ -30,6 +33,21 @@ export function Todos() {
   const [detailTodo, setDetailTodo] = useState<Todo | null>(null);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  // Open the new-todo form when the command palette navigates here with ?new=1.
+  useEffect(() => {
+    if (newParam) {
+      setShowForm(true);
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete('new');
+          return next;
+        },
+        { replace: true }
+      );
+    }
+  }, [newParam, setSearchParams]);
 
   const currentFilters = {
     ...filters,
@@ -116,10 +134,10 @@ export function Todos() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Todos
+            {t('todos.title')}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {data?.total || 0} total tasks
+            {t('todos.totalTasks', { count: data?.total || 0 })}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -128,11 +146,11 @@ export function Todos() {
             onClick={toggleSelectMode}
           >
             <CheckSquare className="h-4 w-4" />
-            {selectMode ? 'Done' : 'Select'}
+            {selectMode ? t('todos.done') : t('todos.select')}
           </Button>
           <Button variant="primary" onClick={() => setShowForm(true)}>
             <Plus className="h-4 w-4" />
-            Add Todo
+            {t('todos.addTodo')}
           </Button>
         </div>
       </div>

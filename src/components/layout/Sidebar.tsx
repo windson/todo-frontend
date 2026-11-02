@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard,
   ListTodo,
@@ -22,22 +23,23 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/todos', label: 'Todos', icon: ListTodo },
-  { path: '/board', label: 'Board', icon: KanbanSquare },
-  { path: '/calendar', label: 'Calendar', icon: CalendarDays },
-  { path: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { path: '/categories', label: 'Categories', icon: FolderOpen },
-  { path: '/tags', label: 'Tags', icon: TagsIcon },
-];
+  { path: '/', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+  { path: '/todos', labelKey: 'nav.todos', icon: ListTodo },
+  { path: '/board', labelKey: 'nav.board', icon: KanbanSquare },
+  { path: '/calendar', labelKey: 'nav.calendar', icon: CalendarDays },
+  { path: '/analytics', labelKey: 'nav.analytics', icon: BarChart3 },
+  { path: '/categories', labelKey: 'nav.categories', icon: FolderOpen },
+  { path: '/tags', labelKey: 'nav.tags', icon: TagsIcon },
+] as const;
 
 const smartLists = [
-  { to: '/todos?dueFilter=today', label: 'Today', icon: Sun },
-  { to: '/todos?dueFilter=upcoming', label: 'Upcoming', icon: CalendarClock },
-  { to: '/todos?dueFilter=overdue', label: 'Overdue', icon: AlertCircle },
-];
+  { to: '/todos?dueFilter=today', labelKey: 'nav.today', icon: Sun },
+  { to: '/todos?dueFilter=upcoming', labelKey: 'nav.upcoming', icon: CalendarClock },
+  { to: '/todos?dueFilter=overdue', labelKey: 'nav.overdue', icon: AlertCircle },
+] as const;
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const { t } = useTranslation();
   const { data: categories } = useCategories();
   const { data: tags } = useTags();
 
@@ -60,7 +62,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="flex flex-col h-full overflow-y-auto p-4">
           <div className="flex items-center justify-between md:hidden mb-4">
             <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Menu
+              {t('nav.menu')}
             </span>
             <button
               onClick={onClose}
@@ -87,14 +89,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 end={item.path === '/'}
               >
                 <item.icon className="h-5 w-5" />
-                {item.label}
+                {t(item.labelKey)}
               </NavLink>
             ))}
           </nav>
 
           <div className="mt-8">
             <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-              Smart Lists
+              {t('nav.smartLists')}
             </h3>
             <nav className="space-y-1">
               {smartLists.map((item) => (
@@ -112,7 +114,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   }
                 >
                   <item.icon className="h-5 w-5" />
-                  {item.label}
+                  {t(item.labelKey)}
                 </NavLink>
               ))}
             </nav>
@@ -121,7 +123,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           {categories && categories.length > 0 && (
             <div className="mt-8">
               <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                Categories
+                {t('nav.categories')}
               </h3>
               <div className="space-y-1">
                 {categories.slice(0, 8).map((category) => (
@@ -148,7 +150,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           {tags && tags.length > 0 && (
             <div className="mt-6">
               <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                Tags
+                {t('nav.tags')}
               </h3>
               <div className="flex flex-wrap gap-1.5 px-3">
                 {tags.slice(0, 12).map((tag) => (

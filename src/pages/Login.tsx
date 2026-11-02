@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useLogin } from '@/hooks/useAuth';
 
 export function Login() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const loginMutation = useLogin();
@@ -21,10 +23,12 @@ export function Login() {
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400">
             <CheckCircle2 className="h-8 w-8" />
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">TodoApp</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">
+              {t('common.appName')}
+            </span>
           </div>
           <h1 className="mt-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
-            Sign in to your account
+            {t('auth.signInTitle')}
           </h1>
         </div>
 
@@ -33,16 +37,16 @@ export function Login() {
           className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900"
         >
           <Input
-            label="Email"
+            label={t('auth.email')}
             type="email"
             autoComplete="email"
-            placeholder="you@example.com"
+            placeholder={t('auth.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
           <Input
-            label="Password"
+            label={t('auth.password')}
             type="password"
             autoComplete="current-password"
             placeholder="••••••••"
@@ -56,14 +60,14 @@ export function Login() {
             loading={loginMutation.isPending}
             disabled={loginMutation.isPending}
           >
-            Sign in
+            {t('auth.signIn')}
           </Button>
         </form>
 
         <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-          Don&apos;t have an account?{' '}
+          {t('auth.noAccount')}{' '}
           <Link to="/signup" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
-            Sign up
+            {t('auth.signUpLink')}
           </Link>
         </p>
       </div>

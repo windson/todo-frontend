@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useSignup } from '@/hooks/useAuth';
 
 export function Signup() {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,10 +24,12 @@ export function Signup() {
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400">
             <CheckCircle2 className="h-8 w-8" />
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">TodoApp</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">
+              {t('common.appName')}
+            </span>
           </div>
           <h1 className="mt-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
-            Create your account
+            {t('auth.signUpTitle')}
           </h1>
         </div>
 
@@ -34,27 +38,27 @@ export function Signup() {
           className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900"
         >
           <Input
-            label="Name"
+            label={t('auth.name')}
             type="text"
             autoComplete="name"
-            placeholder="Your name (optional)"
+            placeholder={t('auth.namePlaceholder')}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <Input
-            label="Email"
+            label={t('auth.email')}
             type="email"
             autoComplete="email"
-            placeholder="you@example.com"
+            placeholder={t('auth.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
           <Input
-            label="Password"
+            label={t('auth.password')}
             type="password"
             autoComplete="new-password"
-            placeholder="At least 8 characters"
+            placeholder={t('auth.passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             minLength={8}
@@ -66,14 +70,14 @@ export function Signup() {
             loading={signupMutation.isPending}
             disabled={signupMutation.isPending}
           >
-            Create account
+            {t('auth.createAccount')}
           </Button>
         </form>
 
         <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-          Already have an account?{' '}
+          {t('auth.haveAccount')}{' '}
           <Link to="/login" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
-            Sign in
+            {t('auth.signInLink')}
           </Link>
         </p>
       </div>

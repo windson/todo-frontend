@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Sun, Moon, Menu, LogOut, User as UserIcon } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth, useLogout } from '@/hooks/useAuth';
 import { NotificationsBell } from '@/components/layout/NotificationsBell';
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
@@ -12,6 +14,7 @@ interface HeaderProps {
 }
 
 export function Header({ onSearch, searchValue, onToggleSidebar }: HeaderProps) {
+  const { t } = useTranslation();
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
   const logoutMutation = useLogout();
@@ -43,7 +46,7 @@ export function Header({ onSearch, searchValue, onToggleSidebar }: HeaderProps) 
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [menuOpen]);
 
-  const displayName = user?.name || user?.email || 'Account';
+  const displayName = user?.name || user?.email || t('header.account');
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 h-16 border-b border-gray-200 bg-white/95 backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
@@ -52,12 +55,12 @@ export function Header({ onSearch, searchValue, onToggleSidebar }: HeaderProps) 
           <button
             onClick={onToggleSidebar}
             className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 md:hidden transition-colors"
-            aria-label="Toggle sidebar"
+            aria-label={t('header.toggleSidebar')}
           >
             <Menu className="h-5 w-5" />
           </button>
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            TodoApp
+            {t('common.appName')}
           </h1>
         </div>
 
@@ -66,7 +69,7 @@ export function Header({ onSearch, searchValue, onToggleSidebar }: HeaderProps) 
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search todos..."
+              placeholder={t('common.search')}
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               className={cn(
@@ -84,7 +87,7 @@ export function Header({ onSearch, searchValue, onToggleSidebar }: HeaderProps) 
           <button
             onClick={toggleTheme}
             className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-            aria-label="Toggle theme"
+            aria-label={t('header.toggleTheme')}
           >
             {theme === 'light' ? (
               <Moon className="h-5 w-5" />
@@ -93,13 +96,15 @@ export function Header({ onSearch, searchValue, onToggleSidebar }: HeaderProps) 
             )}
           </button>
 
+          <LanguageSwitcher />
+
           <NotificationsBell />
 
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen((prev) => !prev)}
               className="flex items-center gap-2 p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-              aria-label="User menu"
+              aria-label={t('header.userMenu')}
               aria-haspopup="menu"
               aria-expanded={menuOpen}
             >
@@ -136,7 +141,7 @@ export function Header({ onSearch, searchValue, onToggleSidebar }: HeaderProps) 
                   className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
                 >
                   <LogOut className="h-4 w-4" />
-                  Sign out
+                  {t('header.signOut')}
                 </button>
               </div>
             )}

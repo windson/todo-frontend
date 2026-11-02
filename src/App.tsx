@@ -3,7 +3,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/context/AuthContext';
+import { CommandPaletteProvider } from '@/context/CommandPaletteProvider';
 import { useAuth } from '@/hooks/useAuth';
+import '@/i18n/config';
 import { Layout } from '@/components/layout/Layout';
 import { Spinner } from '@/components/ui/Spinner';
 import { Dashboard } from '@/pages/Dashboard';
@@ -109,7 +111,9 @@ function App() {
       <ThemeProvider>
         <BrowserRouter>
           <AuthProvider>
-            <AppRoutes />
+            <CommandPaletteProvider>
+              <AppRoutes />
+            </CommandPaletteProvider>
           </AuthProvider>
         </BrowserRouter>
         <Toaster
