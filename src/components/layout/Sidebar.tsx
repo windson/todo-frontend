@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   ListTodo,
+  KanbanSquare,
   FolderOpen,
   TagsIcon,
   CalendarDays,
@@ -22,6 +23,7 @@ interface SidebarProps {
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/todos', label: 'Todos', icon: ListTodo },
+  { path: '/board', label: 'Board', icon: KanbanSquare },
   { path: '/calendar', label: 'Calendar', icon: CalendarDays },
   { path: '/categories', label: 'Categories', icon: FolderOpen },
   { path: '/tags', label: 'Tags', icon: TagsIcon },

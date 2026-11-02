@@ -8,6 +8,7 @@ import { Layout } from '@/components/layout/Layout';
 import { Spinner } from '@/components/ui/Spinner';
 import { Dashboard } from '@/pages/Dashboard';
 import { Todos } from '@/pages/Todos';
+import { Board } from '@/pages/Board';
 import { Calendar } from '@/pages/Calendar';
 import { Categories } from '@/pages/Categories';
 import { Tags } from '@/pages/Tags';
@@ -90,6 +91,7 @@ function AppRoutes() {
       <Route element={<ProtectedRoutes />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/todos" element={<Todos />} />
+        <Route path="/board" element={<Board />} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/tags" element={<Tags />} />

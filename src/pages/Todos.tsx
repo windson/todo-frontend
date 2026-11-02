@@ -5,8 +5,10 @@ import { TodoList } from '@/components/todos/TodoList';
 import { TodoForm } from '@/components/todos/TodoForm';
 import { TodoFilters } from '@/components/todos/TodoFilters';
 import { TodoDetailModal } from '@/components/todos/TodoDetailModal';
+import { SavedViews } from '@/components/todos/SavedViews';
+import { BulkToolbar } from '@/components/todos/BulkToolbar';
 import { Button } from '@/components/ui/Button';
-import { Plus } from 'lucide-react';
+import { Plus, CheckSquare } from 'lucide-react';
 import type { Todo, TodoFilters as TodoFiltersType, CreateTodoInput, UpdateTodoInput } from '@/types';
 
 export function Todos() {
@@ -26,6 +28,8 @@ export function Todos() {
   const [showForm, setShowForm] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [detailTodo, setDetailTodo] = useState<Todo | null>(null);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const currentFilters = {
     ...filters,
@@ -74,6 +78,21 @@ export function Todos() {
     [todos, updateTodo]
   );
 
+  const handleSelectChange = useCallback((id: string, selected: boolean) => {
+    setSelectedIds((prev) =>
+      selected ? [...prev, id] : prev.filter((existing) => existing !== id)
+    );
+  }, []);
+
+  const clearSelection = useCallback(() => setSelectedIds([]), []);
+
+  const toggleSelectMode = useCallback(() => {
+    setSelectMode((prev) => {
+      if (prev) setSelectedIds([]);
+      return !prev;
+    });
+  }, []);
+
   const handleSubmit = (input: CreateTodoInput | UpdateTodoInput) => {
     if (editingTodo) {
       updateTodo.mutate(
@@ -103,13 +122,28 @@ export function Todos() {
             {data?.total || 0} total tasks
           </p>
         </div>
-        <Button variant="primary" onClick={() => setShowForm(true)}>
-          <Plus className="h-4 w-4" />
-          Add Todo
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={selectMode ? 'secondary' : 'ghost'}
+            onClick={toggleSelectMode}
+          >
+            <CheckSquare className="h-4 w-4" />
+            {selectMode ? 'Done' : 'Select'}
+          </Button>
+          <Button variant="primary" onClick={() => setShowForm(true)}>
+            <Plus className="h-4 w-4" />
+            Add Todo
+          </Button>
+        </div>
       </div>
 
+      <SavedViews filters={currentFilters} onApply={setFilters} />
+
       <TodoFilters filters={currentFilters} onFilterChange={setFilters} />
+
+      {selectMode && (
+        <BulkToolbar selectedIds={selectedIds} onClear={clearSelection} />
+      )}
 
       <TodoList
         todos={todos}
@@ -120,6 +154,9 @@ export function Todos() {
         onReorder={handleReorder}
         onOpenDetail={handleOpenDetail}
         onAddTodo={() => setShowForm(true)}
+        selectable={selectMode}
+        selectedIds={selectedIds}
+        onSelectChange={handleSelectChange}
       />
 
       <TodoForm

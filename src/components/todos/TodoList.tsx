@@ -29,6 +29,9 @@ interface TodoListProps {
   onReorder: (activeId: string, overId: string) => void;
   onOpenDetail?: (todo: Todo) => void;
   onAddTodo?: () => void;
+  selectable?: boolean;
+  selectedIds?: string[];
+  onSelectChange?: (id: string, selected: boolean) => void;
 }
 
 function SortableTodoItem({
@@ -37,12 +40,18 @@ function SortableTodoItem({
   onEdit,
   onDelete,
   onOpenDetail,
+  selectable,
+  selected,
+  onSelectChange,
 }: {
   todo: Todo;
   onToggle: (id: string, completed: boolean) => void;
   onEdit: (todo: Todo) => void;
   onDelete: (id: string) => void;
   onOpenDetail?: (todo: Todo) => void;
+  selectable?: boolean;
+  selected?: boolean;
+  onSelectChange?: (id: string, selected: boolean) => void;
 }) {
   const {
     attributes,
@@ -66,6 +75,9 @@ function SortableTodoItem({
         onDelete={onDelete}
         onOpenDetail={onOpenDetail}
         dragHandleProps={{ ...attributes, ...listeners }}
+        selectable={selectable}
+        selected={selected}
+        onSelectChange={onSelectChange}
       />
     </div>
   );
@@ -80,6 +92,9 @@ export function TodoList({
   onReorder,
   onOpenDetail,
   onAddTodo,
+  selectable,
+  selectedIds,
+  onSelectChange,
 }: TodoListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -134,6 +149,9 @@ export function TodoList({
               onEdit={onEdit}
               onDelete={onDelete}
               onOpenDetail={onOpenDetail}
+              selectable={selectable}
+              selected={selectedIds?.includes(todo.id)}
+              onSelectChange={onSelectChange}
             />
           ))}
         </div>

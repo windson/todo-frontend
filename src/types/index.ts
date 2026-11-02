@@ -216,9 +216,47 @@ export interface UpdateTagInput {
   color?: string;
 }
 
-export interface BulkUpdateInput {
-  ids: string[];
-  operation: 'complete' | 'uncomplete' | 'delete';
+export type BulkUpdateInput =
+  | { operation: 'complete'; ids: string[] }
+  | { operation: 'uncomplete'; ids: string[] }
+  | { operation: 'delete'; ids: string[] }
+  | { operation: 'setPriority'; ids: string[]; priority: Priority }
+  | { operation: 'setCategory'; ids: string[]; categoryId: string | null }
+  | { operation: 'addTags'; ids: string[]; tagIds: string[] }
+  | { operation: 'removeTags'; ids: string[]; tagIds: string[] };
+
+/**
+ * The persisted shape of a SavedView's filters. A subset of TodoFilters the
+ * frontend round-trips (see SavedView). Mirrors the backend
+ * SavedViewFiltersSchema; all fields optional.
+ */
+export interface SavedViewFilters {
+  search?: string;
+  completed?: 'true' | 'false';
+  priority?: string;
+  categoryId?: string;
+  tagId?: string;
+  dueFilter?: 'today' | 'upcoming' | 'overdue';
+  sortBy?: 'createdAt' | 'dueDate' | 'priority' | 'title';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface SavedView {
+  id: string;
+  name: string;
+  filters: SavedViewFilters;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSavedViewInput {
+  name: string;
+  filters: SavedViewFilters;
+}
+
+export interface UpdateSavedViewInput {
+  name?: string;
+  filters?: SavedViewFilters;
 }
 
 export interface ApiResponse<T> {

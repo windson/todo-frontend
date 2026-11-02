@@ -15,9 +15,12 @@ interface TodoItemProps {
   onDelete: (id: string) => void;
   onOpenDetail?: (todo: Todo) => void;
   dragHandleProps?: Record<string, unknown>;
+  selectable?: boolean;
+  selected?: boolean;
+  onSelectChange?: (id: string, selected: boolean) => void;
 }
 
-export function TodoItem({ todo, onToggle, onEdit, onDelete, onOpenDetail, dragHandleProps }: TodoItemProps) {
+export function TodoItem({ todo, onToggle, onEdit, onDelete, onOpenDetail, dragHandleProps, selectable, selected, onSelectChange }: TodoItemProps) {
   const overdue = todo.dueDate && !todo.completed && isOverdue(todo.dueDate);
 
   return (
@@ -26,9 +29,19 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onOpenDetail, dragH
         'group flex items-start gap-3 rounded-lg border bg-white p-4 transition-all',
         'hover:shadow-md dark:bg-gray-800',
         'dark:border-gray-700',
+        selected && 'ring-2 ring-blue-500 border-blue-500',
         todo.completed && 'opacity-60'
       )}
     >
+      {selectable && (
+        <div className="pt-0.5">
+          <Checkbox
+            checked={Boolean(selected)}
+            onChange={(checked) => onSelectChange?.(todo.id, checked)}
+            aria-label={`Select ${todo.title}`}
+          />
+        </div>
+      )}
       <div
         {...dragHandleProps}
         className="flex items-center cursor-grab pt-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"
