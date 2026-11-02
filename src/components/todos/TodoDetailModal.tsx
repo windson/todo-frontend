@@ -3,6 +3,8 @@ import { Markdown } from '@/components/ui/Markdown';
 import { CommentThread } from './CommentThread';
 import { ActivityLog } from './ActivityLog';
 import { AttachmentList } from './AttachmentList';
+import { SharePanel } from './SharePanel';
+import { useAuth } from '@/hooks/useAuth';
 import type { Todo } from '@/types';
 
 interface TodoDetailModalProps {
@@ -16,7 +18,17 @@ interface TodoDetailModalProps {
  * comment thread, attachment references, and the activity log.
  */
 export function TodoDetailModal({ todo, isOpen, onClose }: TodoDetailModalProps) {
+  const { user } = useAuth();
   if (!todo) return null;
+
+  // The current user owns the todo when it is not in their "shared with me"
+  // set. We infer ownership from the shares list: if the current user does not
+  // appear as a share member, they are the owner (the backend only returns a
+  // todo a user can access). This gates the share-management UI.
+  const isSharedWithMe = Boolean(
+    todo.shares?.some((share) => share.userId === user?.id)
+  );
+  const canManage = !isSharedWithMe;
 
   return (
     <Modal
@@ -39,6 +51,7 @@ export function TodoDetailModal({ todo, isOpen, onClose }: TodoDetailModalProps)
           )}
         </section>
 
+        <SharePanel todo={todo} canManage={canManage} />
         <AttachmentList todoId={todo.id} />
         <CommentThread todoId={todo.id} />
         <ActivityLog todoId={todo.id} />

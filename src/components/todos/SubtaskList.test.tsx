@@ -42,6 +42,7 @@ function makeSubtask(overrides: Partial<Todo>): Todo {
     tags: [],
     order: 0,
     parentId: 'parent-1',
+    assigneeId: null,
     ...overrides,
   };
 }
@@ -64,6 +65,7 @@ function makeParent(): Todo {
     tags: [],
     order: 0,
     parentId: null,
+    assigneeId: null,
     children: [
       makeSubtask({ id: 'sub-1', title: 'Write copy', completed: true }),
       makeSubtask({ id: 'sub-2', title: 'Ship it', completed: false }),

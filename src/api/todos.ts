@@ -14,6 +14,8 @@ export async function getTodos(filters?: TodoFilters): Promise<PaginatedResponse
     }
     if (filters.categoryId) params.categoryId = filters.categoryId;
     if (filters.tagId) params.tagId = filters.tagId;
+    if (filters.assigneeId) params.assigneeId = filters.assigneeId;
+    if (filters.sharedWithMe !== undefined) params.sharedWithMe = String(filters.sharedWithMe);
     if (filters.dueBefore) params.dueBefore = filters.dueBefore;
     if (filters.dueAfter) params.dueAfter = filters.dueAfter;
     if (filters.dueFilter) params.dueFilter = filters.dueFilter;

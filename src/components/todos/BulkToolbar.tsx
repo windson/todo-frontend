@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle, Circle, Trash2, X } from 'lucide-react';
+import { CheckCircle, Circle, Trash2, X, UserMinus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { useBulkUpdate } from '@/hooks/useTodos';
@@ -111,6 +111,16 @@ export function BulkToolbar({ selectedIds, onClear }: BulkToolbarProps) {
           options={tags?.map((t) => ({ value: t.id, label: t.name })) || []}
           className="h-9 w-40"
         />
+
+        {/* Clear assignee on the selected todos. */}
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => run({ operation: 'setAssignee', ids: selectedIds, assigneeId: null })}
+        >
+          <UserMinus className="h-4 w-4" />
+          Unassign
+        </Button>
 
         <Button
           variant="danger"

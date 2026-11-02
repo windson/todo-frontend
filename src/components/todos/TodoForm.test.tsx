@@ -38,6 +38,7 @@ function makeTodo(overrides: Partial<Todo> = {}): Todo {
     tags: [],
     order: 0,
     parentId: null,
+    assigneeId: null,
     ...overrides,
   };
 }

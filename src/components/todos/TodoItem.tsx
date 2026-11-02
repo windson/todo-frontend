@@ -1,4 +1,4 @@
-import { Calendar, Edit2, Trash2, GripVertical } from 'lucide-react';
+import { Calendar, Edit2, Trash2, GripVertical, UserCircle } from 'lucide-react';
 import { cn, getPriorityColor, getPriorityLabel } from '@/lib/utils';
 import { getDueDateLabel, isOverdue } from '@/lib/dates';
 import { MessageSquare } from 'lucide-react';
@@ -137,6 +137,25 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onOpenDetail, dragH
               <Calendar className="h-3 w-3" />
               {getDueDateLabel(todo.dueDate)}
               {overdue && ' (overdue)'}
+            </span>
+          )}
+
+          {todo.assignee && (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+              title={`Assigned to ${todo.assignee.name ?? todo.assignee.email}`}
+            >
+              <UserCircle className="h-3 w-3" />
+              {todo.assignee.name ?? todo.assignee.email}
+            </span>
+          )}
+
+          {todo.shares && todo.shares.length > 0 && (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+              title={`Shared with ${todo.shares.length} ${todo.shares.length === 1 ? 'person' : 'people'}`}
+            >
+              Shared · {todo.shares.length}
             </span>
           )}
         </div>

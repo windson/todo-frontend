@@ -45,6 +45,41 @@ export interface SubtaskProgress {
   completed: number;
 }
 
+/** Role a user holds on a todo shared with them. */
+export const ShareRole = {
+  VIEWER: 'VIEWER',
+  EDITOR: 'EDITOR',
+} as const;
+
+export type ShareRole = (typeof ShareRole)[keyof typeof ShareRole];
+
+/** Minimal public info about a user (for assignee / share display). */
+export interface PublicUser {
+  id: string;
+  email: string;
+  name: string | null;
+}
+
+/** A share grants a user access to a todo at a given role. */
+export interface Share {
+  id: string;
+  role: ShareRole;
+  todoId: string;
+  userId: string;
+  user: PublicUser;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateShareInput {
+  email: string;
+  role?: ShareRole;
+}
+
+export interface UpdateShareInput {
+  role: ShareRole;
+}
+
 export interface Todo {
   id: string;
   title: string;
@@ -65,6 +100,9 @@ export interface Todo {
   parentId: string | null;
   children?: Todo[];
   progress?: SubtaskProgress;
+  assigneeId: string | null;
+  assignee?: PublicUser | null;
+  shares?: Share[];
 }
 
 export interface Attachment {
@@ -158,6 +196,7 @@ export interface CreateTodoInput {
   categoryId?: string;
   tagIds?: string[];
   parentId?: string;
+  assigneeId?: string;
 }
 
 export interface UpdateTodoInput {
@@ -171,6 +210,7 @@ export interface UpdateTodoInput {
   recurrenceInterval?: number;
   categoryId?: string | null;
   parentId?: string | null;
+  assigneeId?: string | null;
   order?: number;
 }
 
@@ -180,6 +220,8 @@ export interface TodoFilters {
   priority?: Priority | Priority[];
   categoryId?: string;
   tagId?: string;
+  assigneeId?: string;
+  sharedWithMe?: boolean;
   dueBefore?: string;
   dueAfter?: string;
   dueFilter?: 'today' | 'upcoming' | 'overdue';
@@ -223,7 +265,8 @@ export type BulkUpdateInput =
   | { operation: 'setPriority'; ids: string[]; priority: Priority }
   | { operation: 'setCategory'; ids: string[]; categoryId: string | null }
   | { operation: 'addTags'; ids: string[]; tagIds: string[] }
-  | { operation: 'removeTags'; ids: string[]; tagIds: string[] };
+  | { operation: 'removeTags'; ids: string[]; tagIds: string[] }
+  | { operation: 'setAssignee'; ids: string[]; assigneeId: string | null };
 
 /**
  * The persisted shape of a SavedView's filters. A subset of TodoFilters the
@@ -236,6 +279,8 @@ export interface SavedViewFilters {
   priority?: string;
   categoryId?: string;
   tagId?: string;
+  assigneeId?: string;
+  sharedWithMe?: 'true' | 'false';
   dueFilter?: 'today' | 'upcoming' | 'overdue';
   sortBy?: 'createdAt' | 'dueDate' | 'priority' | 'title';
   sortOrder?: 'asc' | 'desc';

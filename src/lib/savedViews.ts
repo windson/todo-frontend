@@ -18,6 +18,8 @@ export function toSavedViewFilters(filters: TodoFilters): SavedViewFilters {
   }
   if (filters.categoryId) result.categoryId = filters.categoryId;
   if (filters.tagId) result.tagId = filters.tagId;
+  if (filters.assigneeId) result.assigneeId = filters.assigneeId;
+  if (filters.sharedWithMe !== undefined) result.sharedWithMe = filters.sharedWithMe ? 'true' : 'false';
   if (filters.dueFilter) result.dueFilter = filters.dueFilter;
   if (filters.sortBy && filters.sortBy !== 'order') result.sortBy = filters.sortBy;
   if (filters.sortOrder) result.sortOrder = filters.sortOrder;
@@ -40,6 +42,8 @@ export function fromSavedViewFilters(filters: SavedViewFilters): TodoFilters {
   }
   if (filters.categoryId) result.categoryId = filters.categoryId;
   if (filters.tagId) result.tagId = filters.tagId;
+  if (filters.assigneeId) result.assigneeId = filters.assigneeId;
+  if (filters.sharedWithMe !== undefined) result.sharedWithMe = filters.sharedWithMe === 'true';
   if (filters.dueFilter) result.dueFilter = filters.dueFilter;
   if (filters.sortBy) result.sortBy = filters.sortBy;
   if (filters.sortOrder) result.sortOrder = filters.sortOrder;
