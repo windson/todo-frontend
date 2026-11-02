@@ -120,3 +120,23 @@ export interface ApiResponse<T> {
     details?: unknown;
   };
 }
+
+export interface User {
+  id: string;
+  email: string;
+  name: string | null;
+  createdAt: string;
+}
+
+export interface SignupInput {
+  email: string;
+  password: string;
+  name?: string;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+export type AuthResponse = User;
