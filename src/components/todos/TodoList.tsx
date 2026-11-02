@@ -27,7 +27,12 @@ interface TodoListProps {
   onEdit: (todo: Todo) => void;
   onDelete: (id: string) => void;
   onReorder: (activeId: string, overId: string) => void;
+  reorderEnabled?: boolean;
+  onOpenDetail?: (todo: Todo) => void;
   onAddTodo?: () => void;
+  selectable?: boolean;
+  selectedIds?: string[];
+  onSelectChange?: (id: string, selected: boolean) => void;
 }
 
 function SortableTodoItem({
@@ -35,11 +40,21 @@ function SortableTodoItem({
   onToggle,
   onEdit,
   onDelete,
+  onOpenDetail,
+  selectable,
+  selected,
+  onSelectChange,
+  reorderEnabled,
 }: {
   todo: Todo;
   onToggle: (id: string, completed: boolean) => void;
   onEdit: (todo: Todo) => void;
   onDelete: (id: string) => void;
+  onOpenDetail?: (todo: Todo) => void;
+  selectable?: boolean;
+  selected?: boolean;
+  onSelectChange?: (id: string, selected: boolean) => void;
+  reorderEnabled: boolean;
 }) {
   const {
     attributes,
@@ -47,7 +62,7 @@ function SortableTodoItem({
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: todo.id });
+  } = useSortable({ id: todo.id, disabled: !reorderEnabled });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -61,7 +76,11 @@ function SortableTodoItem({
         onToggle={onToggle}
         onEdit={onEdit}
         onDelete={onDelete}
-        dragHandleProps={{ ...attributes, ...listeners }}
+        onOpenDetail={onOpenDetail}
+        dragHandleProps={reorderEnabled ? { ...attributes, ...listeners } : undefined}
+        selectable={selectable}
+        selected={selected}
+        onSelectChange={onSelectChange}
       />
     </div>
   );
@@ -74,7 +93,12 @@ export function TodoList({
   onEdit,
   onDelete,
   onReorder,
+  onOpenDetail,
   onAddTodo,
+  selectable,
+  selectedIds,
+  onSelectChange,
+  reorderEnabled = false,
 }: TodoListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -85,7 +109,7 @@ export function TodoList({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (over && active.id !== over.id) {
+    if (reorderEnabled && over && active.id !== over.id) {
       onReorder(String(active.id), String(over.id));
     }
   };
@@ -128,6 +152,11 @@ export function TodoList({
               onToggle={onToggle}
               onEdit={onEdit}
               onDelete={onDelete}
+              onOpenDetail={onOpenDetail}
+              selectable={selectable}
+              selected={selectedIds?.includes(todo.id)}
+              onSelectChange={onSelectChange}
+              reorderEnabled={reorderEnabled}
             />
           ))}
         </div>

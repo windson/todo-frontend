@@ -1,12 +1,22 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { AuthProvider } from '@/context/AuthContext';
+import { CommandPaletteProvider } from '@/context/CommandPaletteProvider';
+import { useAuth } from '@/hooks/useAuth';
+import '@/i18n/config';
 import { Layout } from '@/components/layout/Layout';
+import { Spinner } from '@/components/ui/Spinner';
 import { Dashboard } from '@/pages/Dashboard';
+import { Analytics } from '@/pages/Analytics';
 import { Todos } from '@/pages/Todos';
+import { Board } from '@/pages/Board';
+import { Calendar } from '@/pages/Calendar';
 import { Categories } from '@/pages/Categories';
 import { Tags } from '@/pages/Tags';
+import { Login } from '@/pages/Login';
+import { Signup } from '@/pages/Signup';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,19 +28,93 @@ const queryClient = new QueryClient({
   },
 });
 
+function FullPageSpinner() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+      <Spinner size="lg" />
+    </div>
+  );
+}
+
+/** Gate protected routes behind authentication, redirecting to /login. */
+function ProtectedRoutes() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <FullPageSpinner />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  );
+}
+
+/** Keep authenticated users away from the login/signup pages. */
+function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) {
+    return <FullPageSpinner />;
+  }
+
+  if (isAuthenticated) {
+    const from = (location.state as { from?: string } | null)?.from ?? '/';
+    return <Navigate to={from} replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route
+        path="/login"
+        element={
+          <PublicOnlyRoute>
+            <Login />
+          </PublicOnlyRoute>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <PublicOnlyRoute>
+            <Signup />
+          </PublicOnlyRoute>
+        }
+      />
+      <Route element={<ProtectedRoutes />}>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/analytics" element={<Analytics />} />
+        <Route path="/todos" element={<Todos />} />
+        <Route path="/board" element={<Board />} />
+        <Route path="/calendar" element={<Calendar />} />
+        <Route path="/categories" element={<Categories />} />
+        <Route path="/tags" element={<Tags />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <BrowserRouter>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/todos" element={<Todos />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/tags" element={<Tags />} />
-            </Routes>
-          </Layout>
+          <AuthProvider>
+            <CommandPaletteProvider>
+              <AppRoutes />
+            </CommandPaletteProvider>
+          </AuthProvider>
         </BrowserRouter>
         <Toaster
           position="bottom-right"

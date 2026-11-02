@@ -1,5 +1,18 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, ListTodo, FolderOpen, TagsIcon, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import {
+  LayoutDashboard,
+  ListTodo,
+  KanbanSquare,
+  FolderOpen,
+  TagsIcon,
+  CalendarDays,
+  BarChart3,
+  Sun,
+  CalendarClock,
+  AlertCircle,
+  X,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCategories } from '@/hooks/useCategories';
 import { useTags } from '@/hooks/useTags';
@@ -10,13 +23,23 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/todos', label: 'Todos', icon: ListTodo },
-  { path: '/categories', label: 'Categories', icon: FolderOpen },
-  { path: '/tags', label: 'Tags', icon: TagsIcon },
-];
+  { path: '/', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+  { path: '/todos', labelKey: 'nav.todos', icon: ListTodo },
+  { path: '/board', labelKey: 'nav.board', icon: KanbanSquare },
+  { path: '/calendar', labelKey: 'nav.calendar', icon: CalendarDays },
+  { path: '/analytics', labelKey: 'nav.analytics', icon: BarChart3 },
+  { path: '/categories', labelKey: 'nav.categories', icon: FolderOpen },
+  { path: '/tags', labelKey: 'nav.tags', icon: TagsIcon },
+] as const;
+
+const smartLists = [
+  { to: '/todos?dueFilter=today', labelKey: 'nav.today', icon: Sun },
+  { to: '/todos?dueFilter=upcoming', labelKey: 'nav.upcoming', icon: CalendarClock },
+  { to: '/todos?dueFilter=overdue', labelKey: 'nav.overdue', icon: AlertCircle },
+] as const;
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const { t } = useTranslation();
   const { data: categories } = useCategories();
   const { data: tags } = useTags();
 
@@ -39,7 +62,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="flex flex-col h-full overflow-y-auto p-4">
           <div className="flex items-center justify-between md:hidden mb-4">
             <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Menu
+              {t('nav.menu')}
             </span>
             <button
               onClick={onClose}
@@ -66,15 +89,41 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 end={item.path === '/'}
               >
                 <item.icon className="h-5 w-5" />
-                {item.label}
+                {t(item.labelKey)}
               </NavLink>
             ))}
           </nav>
 
+          <div className="mt-8">
+            <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+              {t('nav.smartLists')}
+            </h3>
+            <nav className="space-y-1">
+              {smartLists.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                      isActive
+                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                    )
+                  }
+                >
+                  <item.icon className="h-5 w-5" />
+                  {t(item.labelKey)}
+                </NavLink>
+              ))}
+            </nav>
+          </div>
+
           {categories && categories.length > 0 && (
             <div className="mt-8">
               <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                Categories
+                {t('nav.categories')}
               </h3>
               <div className="space-y-1">
                 {categories.slice(0, 8).map((category) => (
@@ -101,7 +150,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           {tags && tags.length > 0 && (
             <div className="mt-6">
               <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                Tags
+                {t('nav.tags')}
               </h3>
               <div className="flex flex-wrap gap-1.5 px-3">
                 {tags.slice(0, 12).map((tag) => (

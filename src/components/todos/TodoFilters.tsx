@@ -18,7 +18,9 @@ export function TodoFilters({ filters, onFilterChange }: TodoFiltersProps) {
     filters.priority !== undefined ||
     filters.categoryId !== undefined ||
     filters.dueBefore !== undefined ||
-    filters.dueAfter !== undefined;
+    filters.dueAfter !== undefined ||
+    filters.dueFilter !== undefined ||
+    filters.sharedWithMe !== undefined;
 
   const handleClear = () => {
     onFilterChange({
@@ -81,6 +83,24 @@ export function TodoFilters({ filters, onFilterChange }: TodoFiltersProps) {
         }
       />
 
+      <Select
+        label="Due"
+        value={filters.dueFilter || ''}
+        onChange={(e) => {
+          const val = e.target.value as TodoFiltersType['dueFilter'] | '';
+          onFilterChange({
+            ...filters,
+            dueFilter: val || undefined,
+          });
+        }}
+        placeholder="Any time"
+        options={[
+          { value: 'today', label: 'Today' },
+          { value: 'upcoming', label: 'Upcoming' },
+          { value: 'overdue', label: 'Overdue' },
+        ]}
+      />
+
       <Input
         label="Due After"
         type="date"
@@ -103,6 +123,25 @@ export function TodoFilters({ filters, onFilterChange }: TodoFiltersProps) {
             dueBefore: e.target.value || undefined,
           });
         }}
+      />
+
+      <Select
+        label="Ownership"
+        value={
+          filters.sharedWithMe === undefined ? '' : String(filters.sharedWithMe)
+        }
+        onChange={(e) => {
+          const val = e.target.value;
+          onFilterChange({
+            ...filters,
+            sharedWithMe: val === '' ? undefined : val === 'true',
+          });
+        }}
+        placeholder="All"
+        options={[
+          { value: 'false', label: 'Owned by me' },
+          { value: 'true', label: 'Shared with me' },
+        ]}
       />
 
       {hasActiveFilters && (
