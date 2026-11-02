@@ -4,6 +4,7 @@ import { useTodos, useCreateTodo, useUpdateTodo, useDeleteTodo } from '@/hooks/u
 import { TodoList } from '@/components/todos/TodoList';
 import { TodoForm } from '@/components/todos/TodoForm';
 import { TodoFilters } from '@/components/todos/TodoFilters';
+import { TodoDetailModal } from '@/components/todos/TodoDetailModal';
 import { Button } from '@/components/ui/Button';
 import { Plus } from 'lucide-react';
 import type { Todo, TodoFilters as TodoFiltersType, CreateTodoInput, UpdateTodoInput } from '@/types';
@@ -24,6 +25,7 @@ export function Todos() {
 
   const [showForm, setShowForm] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+  const [detailTodo, setDetailTodo] = useState<Todo | null>(null);
 
   const currentFilters = {
     ...filters,
@@ -47,6 +49,10 @@ export function Todos() {
   const handleEdit = useCallback((todo: Todo) => {
     setEditingTodo(todo);
     setShowForm(true);
+  }, []);
+
+  const handleOpenDetail = useCallback((todo: Todo) => {
+    setDetailTodo(todo);
   }, []);
 
   const handleDelete = useCallback(
@@ -112,6 +118,7 @@ export function Todos() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onReorder={handleReorder}
+        onOpenDetail={handleOpenDetail}
         onAddTodo={() => setShowForm(true)}
       />
 
@@ -122,6 +129,12 @@ export function Todos() {
         onSubmit={handleSubmit}
         isLoading={createTodo.isPending || updateTodo.isPending}
         todo={editingTodo}
+      />
+
+      <TodoDetailModal
+        isOpen={detailTodo !== null}
+        onClose={() => setDetailTodo(null)}
+        todo={detailTodo ? todos.find((t) => t.id === detailTodo.id) ?? detailTodo : null}
       />
     </div>
   );

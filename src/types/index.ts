@@ -67,6 +67,49 @@ export interface Todo {
   progress?: SubtaskProgress;
 }
 
+export interface Attachment {
+  id: string;
+  filename: string;
+  url: string;
+  mimeType: string | null;
+  size: number | null;
+  todoId: string;
+  createdAt: string;
+}
+
+export interface CreateAttachmentInput {
+  filename: string;
+  url: string;
+  mimeType?: string;
+  size?: number;
+}
+
+export interface Comment {
+  id: string;
+  body: string;
+  todoId: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCommentInput {
+  body: string;
+}
+
+export interface UpdateCommentInput {
+  body: string;
+}
+
+export interface ActivityLogEntry {
+  id: string;
+  action: string;
+  metadata: Record<string, unknown> | null;
+  todoId: string;
+  userId: string;
+  createdAt: string;
+}
+
 export interface CreateTodoInput {
   title: string;
   description?: string;

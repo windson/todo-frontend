@@ -27,6 +27,7 @@ interface TodoListProps {
   onEdit: (todo: Todo) => void;
   onDelete: (id: string) => void;
   onReorder: (activeId: string, overId: string) => void;
+  onOpenDetail?: (todo: Todo) => void;
   onAddTodo?: () => void;
 }
 
@@ -35,11 +36,13 @@ function SortableTodoItem({
   onToggle,
   onEdit,
   onDelete,
+  onOpenDetail,
 }: {
   todo: Todo;
   onToggle: (id: string, completed: boolean) => void;
   onEdit: (todo: Todo) => void;
   onDelete: (id: string) => void;
+  onOpenDetail?: (todo: Todo) => void;
 }) {
   const {
     attributes,
@@ -61,6 +64,7 @@ function SortableTodoItem({
         onToggle={onToggle}
         onEdit={onEdit}
         onDelete={onDelete}
+        onOpenDetail={onOpenDetail}
         dragHandleProps={{ ...attributes, ...listeners }}
       />
     </div>
@@ -74,6 +78,7 @@ export function TodoList({
   onEdit,
   onDelete,
   onReorder,
+  onOpenDetail,
   onAddTodo,
 }: TodoListProps) {
   const sensors = useSensors(
@@ -128,6 +133,7 @@ export function TodoList({
               onToggle={onToggle}
               onEdit={onEdit}
               onDelete={onDelete}
+              onOpenDetail={onOpenDetail}
             />
           ))}
         </div>
