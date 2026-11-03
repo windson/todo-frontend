@@ -1,16 +1,26 @@
 // Minimal Node HTTP static server for the todo-frontend SPA.
 //
-// This file is the AWS Lambda Web Function entrypoint. Lambda Web Functions run
-// a standard Node.js HTTP server process that listens on a port; this server
-// serves the built Vite output in dist/ and is intentionally dependency-free
-// (Node built-ins only: http, fs, path, url).
+// This file is the AWS Lambda Web Function entrypoint. The Web Function Node.js
+// runtime loads `index.js` at the ROOT of the deployment package by default
+// (or the file named by the AWS_LAMBDA_NODEJS_ENTRYPOINT env var). It does NOT
+// run a package.json `start`/`serve` script. It also provides the listen
+// address via the env var AWS_LAMBDA_HTTP_ENDPOINT, formatted as "host:port"
+// (e.g. "0.0.0.0:8080") - NOT as `PORT`. See (official AWS docs):
+//   - https://docs.aws.amazon.com/lambda/latest/dg/web-functions-runtimes.html
+//   - https://docs.aws.amazon.com/lambda/latest/dg/web-functions-create.html
+//   - https://aws.amazon.com/blogs/compute/exploring-aws-lambda-web-functions-for-building-web-applications/
+//
+// This server serves the built Vite output in dist/ and is intentionally
+// dependency-free (Node built-ins only: http, fs, path, url). This file is ESM
+// because package.json declares "type": "module".
 //
 // Behaviour:
 //   - serves files from dist/ with correct Content-Type (incl. PWA assets
 //     sw.js and manifest.webmanifest),
 //   - returns index.html for unknown, non-asset routes (SPA client-side
 //     routing fallback),
-//   - listens on process.env.PORT (default 8080).
+//   - listens on the host:port from AWS_LAMBDA_HTTP_ENDPOINT (fallback
+//     '0.0.0.0:8080'); process.env.PORT is a secondary fallback for local dev.
 //
 // It does NOT touch any React app/business logic; it only serves the static
 // build artifacts produced by `vite build`.
@@ -22,8 +32,29 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const DIST_DIR = resolve(__dirname, 'dist')
-const PORT = Number.parseInt(process.env.PORT ?? '8080', 10)
 const INDEX_HTML = join(DIST_DIR, 'index.html')
+
+// Determine the listen address. The Web Function runtime sets
+// AWS_LAMBDA_HTTP_ENDPOINT as "host:port" (e.g. "0.0.0.0:8080"); it takes
+// precedence because it is what the runtime actually provides. For local dev
+// where it is absent, fall back to PORT (host 0.0.0.0), then to 8080. IPv6
+// hosts can contain ':' (e.g. "[::1]:8080"), so split on the LAST ':'.
+function resolveListenAddress() {
+  const endpoint = process.env.AWS_LAMBDA_HTTP_ENDPOINT
+  if (endpoint) {
+    const lastColon = endpoint.lastIndexOf(':')
+    if (lastColon === -1) {
+      return { host: endpoint, port: 8080 }
+    }
+    return {
+      host: endpoint.slice(0, lastColon),
+      port: Number.parseInt(endpoint.slice(lastColon + 1), 10) || 8080,
+    }
+  }
+  return { host: '0.0.0.0', port: Number.parseInt(process.env.PORT ?? '8080', 10) }
+}
+
+const { host: HOST, port: PORT } = resolveListenAddress()
 
 // Content types keyed by file extension. PWA assets (sw.js, .webmanifest) are
 // covered so browsers register the service worker and manifest correctly.
@@ -124,7 +155,7 @@ const server = createServer(async (req, res) => {
   res.end('Not Found')
 })
 
-server.listen(PORT, () => {
+server.listen(PORT, HOST, () => {
   // Single, non-sensitive startup line. Never dump process.env here.
-  console.log(`todo-frontend static server listening on port ${PORT}`)
+  console.log(`todo-frontend static server listening on ${HOST}:${PORT}`)
 })

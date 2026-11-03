@@ -25,21 +25,38 @@ application.
 
 ## Why a Node server for a static SPA?
 
-A Lambda Web Function runs a standard Node.js HTTP server process that listens
-on a port. This app is a static Vite SPA (no SSR), so a tiny dependency-free
-Node static server, [`server.mjs`](../server.mjs), is the Web Function
-entrypoint. It:
+The AWS Lambda Web Function **Node.js runtime loads `index.js` at the root of
+the deployment package** by default (or the file named by the
+`AWS_LAMBDA_NODEJS_ENTRYPOINT` env var). It does **not** run a `package.json`
+script. It also provides the listen address as `AWS_LAMBDA_HTTP_ENDPOINT`
+(`host:port`, e.g. `0.0.0.0:8080`), **not** as `PORT`. This is grounded in the
+official AWS docs:
+
+- <https://docs.aws.amazon.com/lambda/latest/dg/web-functions-runtimes.html>
+- <https://docs.aws.amazon.com/lambda/latest/dg/web-functions-create.html>
+- <https://aws.amazon.com/blogs/compute/exploring-aws-lambda-web-functions-for-building-web-applications/>
+
+> An earlier revision assumed the Web Function would run a `serve` script and
+> listen on `PORT`. That assumption was wrong (the companion backend 502'd for
+> the analogous reason: the runtime could not find `index.js` at the package
+> root). The entry is now `index.js` and it listens on `AWS_LAMBDA_HTTP_ENDPOINT`.
+
+This app is a static Vite SPA (no SSR), so a tiny dependency-free Node static
+server, [`index.js`](../index.js), is the Web Function entrypoint. It:
 
 - serves the built `dist/` directory with correct `Content-Type` (including the
   PWA assets `sw.js` and `manifest.webmanifest`),
 - returns `index.html` for unknown, non-asset routes (SPA client-side routing
   fallback), and returns `404` for missing files that look like assets,
-- listens on `process.env.PORT` (default `8080`),
+- listens on the `host:port` from `AWS_LAMBDA_HTTP_ENDPOINT` (fallback
+  `0.0.0.0:8080`); `process.env.PORT` is kept as a secondary fallback for local
+  development,
 - uses only Node built-ins (`http`, `fs`, `path`, `url`) - no extra deps to
   bundle, and guards against path traversal.
 
-A `serve` npm script (`node server.mjs`) runs it. **No React app or business
-logic was changed.**
+`index.js` loads as an ES module because `package.json` declares
+`"type": "module"`. A `serve` npm script (`node index.js`) runs it locally.
+**No React app or business logic was changed.**
 
 ## Architecture
 
@@ -53,7 +70,8 @@ logic was changed.**
       │                                     WebFunctionRevision
       │                                     (code .zip from S3,
       │                                      Runtime nodejs24.x,
-      │                                      server.mjs serves dist/ on PORT 8080)
+      │                                      index.js serves dist/ on
+      │                                      AWS_LAMBDA_HTTP_ENDPOINT)
       │
       │  the SPA's JS (with VITE_API_URL baked in at build time)
       │  calls the BACKEND directly from the browser
@@ -63,7 +81,7 @@ logic was changed.**
 
    Build + cutover (MANUAL handoff, not an automated pipeline):
      GitHub ─▶ CodeBuild (bun install → bun run build [VITE_API_URL baked]
-              → zip dist/ + server.mjs + package.json → s3 cp
+              → zip dist/ + index.js + package.json → s3 cp
               → print ArtifactObjectKey) ─▶ S3 artifact bucket
      operator copies ArtifactObjectKey from the build log
      operator runs `cloudformation deploy` on app.yaml, which updates the
@@ -138,7 +156,7 @@ This is a **manual** build-to-cutover handoff, not an automated pipeline. Be
 precise about what each piece does:
 
 - **CodeBuild** (`buildspec.yml`): install Bun → `bun install --frozen-lockfile`
-  → `bun run build` (with `VITE_API_URL` baked) → `zip` `dist/` + `server.mjs` +
+  → `bun run build` (with `VITE_API_URL` baked) → `zip` `dist/` + `index.js` +
   `package.json` → `aws s3 cp` to the artifact bucket → **print** the
   `ArtifactObjectKey` to the build log. The server uses only Node built-ins, so
   no `node_modules` are bundled.
@@ -193,7 +211,7 @@ bare `env`, `set -x`/`set +x`, `process.env`, or `os.environ` dump anywhere.
 Each step references only the specific variables it needs (`ARTIFACT_BUCKET`,
 `VITE_API_URL`). The only value echoed is the non-sensitive `ArtifactObjectKey`
 (an S3 object key, not a secret). The CodeBuild project declares only those two
-variables. `server.mjs` logs a single non-sensitive startup line and never
+variables. `index.js` logs a single non-sensitive startup line and never
 prints `process.env`.
 
 ## Prerequisites
@@ -209,9 +227,11 @@ Every CloudFormation template was validated through the AWS IaC MCP:
 cfn-lint (`validate_cloudformation_template`) and cfn-guard
 (`check_cloudformation_template_compliance`). The `buildspec.yml` is plain config
 (not CloudFormation) and was reviewed manually. The Vite build was run locally
-(`bun run build`) to confirm the added `server.mjs` / `serve` script did not
+(`bun run build`) to confirm the `index.js` / `serve` static server did not
 break it; `dist/` built successfully with `sw.js` and `manifest.webmanifest`
-emitted.
+emitted. The `index.js` entry was also booted locally with
+`AWS_LAMBDA_HTTP_ENDPOINT=127.0.0.1:8080 node index.js` and `GET /` returned
+`200` with `index.html`.
 
 ### Cited AWS documentation
 

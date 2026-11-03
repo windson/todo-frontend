@@ -33,11 +33,16 @@ phases:
   post_build:
     commands:
       # Package only what the Web Function runtime needs: the built SPA (dist/),
-      # the Node static server entrypoint (server.mjs), and package.json (for
-      # the `serve` script / "type": "module"). The server uses Node built-ins
-      # only, so no node_modules are bundled.
+      # the Node static server entrypoint (index.js), and package.json (for
+      # "type": "module", so index.js loads as ESM). The Web Function runtime
+      # loads `index.js` at the archive ROOT, so it must sit at the top level of
+      # the zip. The server uses Node built-ins only, so no node_modules are
+      # bundled. See infra/README.md ("Why a Node server for a static SPA?").
       - ARTIFACT_KEY="todo-frontend/${CODEBUILD_RESOLVED_SOURCE_VERSION}.zip"
-      - zip -r -q app.zip dist server.mjs package.json
+      - zip -r -q app.zip dist index.js package.json
+      # Fail the build if the entry is not at the archive root; the runtime
+      # loads index.js and would otherwise 502 with Runtime.ImportCodeError.
+      - 'unzip -l app.zip | grep -q " index.js$" || { echo "ERROR: index.js is not at the zip root; the Web Function runtime requires index.js at the deployment package root." >&2; exit 1; }'
       - aws s3 cp app.zip "s3://${ARTIFACT_BUCKET}/${ARTIFACT_KEY}"
       # Print the artifact key so an operator can copy it from the build log and
       # pass it to the app stack as the ArtifactObjectKey parameter. The handoff

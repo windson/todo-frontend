@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "serve": "node server.mjs",
+    "serve": "node index.js",
     "preview": "vite preview",
     "lint": "oxlint",
     "type-check": "tsc --noEmit -p tsconfig.app.json",
