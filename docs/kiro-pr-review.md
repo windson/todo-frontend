@@ -66,3 +66,11 @@ gh api repos/windson/todo-frontend/pulls/2/comments
 ```
 
 A successful run contains `Resolve pull request`, `Run Kiro review`, and `Create inline review comments` steps. Subsequent commits replace the existing marked inline comments instead of creating stale duplicates.
+## References
+
+- [Kiro CLI headless mode](https://kiro.dev/docs/cli/headless/)
+- [Kiro custom agents](https://kiro.dev/docs/custom-agents/creating/)
+
+---
+
+<p align="center"><strong>AWS</strong><br>Prepared by - Pavan Kumar Rao Navule, Sr. Solutions Architect, AWS</p>
