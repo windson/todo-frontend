@@ -2,9 +2,11 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
   todo-frontend application tier hosted as an AWS Lambda Web Function (new
   capability; AWS::Lambda::WebFunction / WebFunctionRevision /
-  WebFunctionEndpoint). The Web Function server process is a tiny Node HTTP
-  static server (server.mjs) that serves the built Vite SPA (dist/) with SPA
-  fallback and PWA assets, listening on PORT. No VPC connectivity is needed: the
+  WebFunctionEndpoint). The Web Function runtime loads index.js at the package
+  root (NOT a package.json script) and provides the listen address via
+  AWS_LAMBDA_HTTP_ENDPOINT (host:port); index.js is a tiny Node HTTP static
+  server that serves the built Vite SPA (dist/) with SPA fallback and PWA
+  assets. No VPC connectivity is needed: the
   browser calls the backend Web Function endpoint directly over its public HTTPS
   URL, and this server only serves static files.
 
@@ -27,7 +29,10 @@ Parameters:
   Port:
     Type: String
     Default: "8080"
-    Description: Port the Node static server (server.mjs) listens on inside the Web Function.
+    Description: >-
+      Secondary PORT fallback for the Node static server (index.js). The Web
+      Function runtime sets AWS_LAMBDA_HTTP_ENDPOINT (host:port), which index.js
+      uses as the listen address; this PORT env var is only a fallback.
   TimeoutSeconds:
     Type: Number
     Default: 30
@@ -89,6 +94,8 @@ Resources:
         # two runtime vars the static server needs are declared.
         EnvironmentVariables:
           NODE_ENV: production
+          # The runtime sets AWS_LAMBDA_HTTP_ENDPOINT (host:port); index.js uses
+          # it as the listen address. PORT is kept only as a secondary fallback.
           PORT: !Ref Port
 
   WebFunctionEndpoint:

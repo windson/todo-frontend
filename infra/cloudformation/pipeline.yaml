@@ -3,7 +3,7 @@ Description: >-
   todo-frontend CI/CD: an encrypted, TLS-only, public-access-blocked S3 artifact
   bucket (with a terminal access-log bucket); a CodeBuild project that runs
   infra/buildspec.yml (bun install -> bun run build with VITE_API_URL baked at
-  build time -> zip dist/ + server.mjs + package.json -> aws s3 cp); and a
+  build time -> zip dist/ + index.js + package.json -> aws s3 cp); and a
   CodeDeploy application (ComputePlatform Lambda) with least-privilege roles.
   This is NOT an automated pipeline: there is no AWS::CodePipeline and no
   CodeDeploy DeploymentGroup. The CodeDeploy application is a placeholder for a
