@@ -66,6 +66,7 @@ gh api repos/windson/todo-frontend/pulls/2/comments
 ```
 
 A successful run contains `Resolve pull request`, `Run Kiro review`, and `Create inline review comments` steps. Subsequent commits replace the existing marked inline comments instead of creating stale duplicates.
+
 ## Inspecting per-run credits
 
 Open the completed `Kiro PR Review` run and read its job summary. The `Kiro PR review usage` table shows the credits consumed by that headless invocation alongside its outcome, PR number, and reviewed commit. The workflow log also contains a `Kiro credits consumed:` line for command-line inspection.
