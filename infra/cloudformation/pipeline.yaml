@@ -45,6 +45,25 @@ Resources:
               AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
             Action: "kms:*"
             Resource: "*"
+          # The built .zip is encrypted with this CMK (SSE-KMS). When the app
+          # stack creates an AWS::Lambda::WebFunctionRevision from the artifact
+          # object, the Lambda Web service principal must be able to decrypt it,
+          # otherwise CreateWebFunctionRevision is rejected at create time
+          # (AWS doc "Deploying Web Function code from Amazon S3"). Scoped with
+          # aws:SourceArn (ArnLike) to Web Function revisions in this
+          # account/region; function name and revision id are wildcarded because
+          # the pipeline stack does not know them and Lambda generates the id.
+          - Sid: AllowLambdaWebDecryptArtifacts
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+            Resource: "*"
+            Condition:
+              ArnLike:
+                "aws:SourceArn": !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:web-function/*/revision/*"
 
   # Server-access log bucket for the artifact bucket (S3_BUCKET_LOGGING_ENABLED).
   # It does not log to itself (that would recurse); standard terminal log-bucket.
@@ -145,6 +164,26 @@ Resources:
             Condition:
               Bool:
                 "aws:SecureTransport": "false"
+          # The app stack creates an AWS::Lambda::WebFunctionRevision whose code
+          # is the built .zip in this bucket. Lambda Web pulls that object using
+          # its service principal, so the bucket policy must grant it read on the
+          # artifact objects (AWS doc "Deploying Web Function code from Amazon
+          # S3"). Scoped with aws:SourceArn (ArnLike) to Web Function revisions
+          # in this account/region; the function name and revision id are
+          # wildcarded because the pipeline stack does not know them and Lambda
+          # generates the revision id at create time. The revision/* wildcard is
+          # kept as the doc requires.
+          - Sid: AllowLambdaWebFunctionCodeAccess
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - s3:GetObject
+              - s3:GetObjectVersion
+            Resource: !Sub "${ArtifactBucket.Arn}/*"
+            Condition:
+              ArnLike:
+                "aws:SourceArn": !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:web-function/*/revision/*"
 
   CodeBuildLogGroup:
     Type: AWS::Logs::LogGroup
