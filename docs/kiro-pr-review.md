@@ -7,6 +7,7 @@ The `Kiro PR Review` GitHub Actions workflow runs a read-only Kiro CLI agent whe
 - `.github/workflows/kiro-pr-review.yml` resolves the exact PR revision, keeps trusted automation at the workspace root, checks out untrusted PR code under `review-target/`, invokes Kiro headlessly, and posts each validated finding as an inline review comment on the affected file and line.
 - `.kiro/agents/pr-reviewer.json` limits the agent to repository reads and requires structured findings with diff-relative locations.
 - `.github/scripts/extract-kiro-review.py` extracts Kiro's structured response from `stream-json` output and rejects paths or lines that are not present on the PR diff.
+- `.github/scripts/extract-kiro-credits.py` reads the latest `meteringUsage` metadata event and exposes the run's credit total.
 
 ## Required secret
 
@@ -29,6 +30,10 @@ gh workflow run "Kiro PR Review" --repo windson/todo-frontend -f pr_number=1
 ```
 
 Each actionable finding is attached to its file and line in the pull request diff. A later run replaces prior Kiro inline comments, and a clean review posts no summary comment.
+
+## Credit usage
+
+Every Kiro review and authorized fix writes a `Kiro PR review usage` or `Kiro PR fixer usage` table to the GitHub Actions job summary. The table contains the credits reported by Kiro, step outcome, PR number, and reviewed head commit. If Kiro exits before emitting metering metadata, the workflow records `unknown` rather than zero.
 
 ## Custom GitHub App identity
 
