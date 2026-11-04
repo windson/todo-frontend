@@ -127,6 +127,37 @@ aws cloudformation deploy --stack-name todo-frontend-app --template-file infra/c
   --capabilities CAPABILITY_IAM
 ```
 
+## Build source and artifact key (S3-source builds)
+
+The CodeBuild project's declared source is GitHub, but a one-off build can be
+started from a source zip uploaded to S3 (`--source-type-override S3
+--source-location-override <bucket>/<key>`). Two things matter for that path:
+
+- **Pass `sourceVersion` = the S3 object's `VersionId`.** For an S3 source,
+  `StartBuild` must be given `--source-version <VersionId>` (get it from the
+  `aws s3api put-object` / `head-object` output of the source zip; the source
+  bucket must be versioned). If it is omitted, CodeBuild does not reliably pick
+  up the newly uploaded object and may build a stale one.
+- **`CODEBUILD_RESOLVED_SOURCE_VERSION` is empty for S3 sources** (it is only the
+  commit SHA for GitHub sources). The buildspec therefore derives the artifact
+  key as follows, and fails the build (exit 1, message on stderr) if the result
+  would be empty or just `todo-frontend/.zip`:
+
+  | Source | Artifact key |
+  |--------|--------------|
+  | GitHub (or any source with a resolved version) | `todo-frontend/<CODEBUILD_RESOLVED_SOURCE_VERSION>.zip` |
+  | S3 (resolved version empty) | `todo-frontend/build-<CODEBUILD_BUILD_NUMBER>-<epoch-seconds>.zip` |
+
+  Read the exact key from the `ArtifactObjectKey=...` line in the build log and
+  pass it to the `app` stack; do not guess it from a commit SHA when the source
+  was S3.
+
+The buildspec also **fails the build before `bun run build`** if `VITE_API_URL`
+is empty or contains `example.` (the unedited `ViteApiUrl` placeholder default),
+so a SPA pointing at a placeholder backend is never produced silently. Supply
+the real backend API URL as the `ViteApiUrl` stack parameter (or a CodeBuild
+environment variable override) at deploy time; never commit it.
+
 ## Parameters
 
 - **pipeline.yaml**: `SourceRepositoryUrl`, `SourceBranch` (`feat/aws-iac-cicd`), `ViteApiUrl` (the backend API base URL baked into the SPA at build time; default is a placeholder).
