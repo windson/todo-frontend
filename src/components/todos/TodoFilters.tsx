@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useCategories } from '@/hooks/useCategories';
 import { Priority, type TodoFilters as TodoFiltersType } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface TodoFiltersProps {
   filters: TodoFiltersType;
@@ -11,6 +12,7 @@ interface TodoFiltersProps {
 }
 
 export function TodoFilters({ filters, onFilterChange }: TodoFiltersProps) {
+  const { t } = useTranslation();
   const { data: categories } = useCategories();
 
   const hasActiveFilters =
@@ -42,7 +44,7 @@ export function TodoFilters({ filters, onFilterChange }: TodoFiltersProps) {
             completed: val === '' ? undefined : val === 'true',
           });
         }}
-        placeholder="All"
+        placeholder={t('filters.all')}
         options={[
           { value: 'false', label: 'Active' },
           { value: 'true', label: 'Completed' },
@@ -59,7 +61,7 @@ export function TodoFilters({ filters, onFilterChange }: TodoFiltersProps) {
             priority: val ? (val as Priority) : undefined,
           });
         }}
-        placeholder="All"
+        placeholder={t('filters.all')}
         options={[
           { value: Priority.LOW, label: 'Low' },
           { value: Priority.MEDIUM, label: 'Medium' },
@@ -77,7 +79,7 @@ export function TodoFilters({ filters, onFilterChange }: TodoFiltersProps) {
             categoryId: e.target.value || undefined,
           });
         }}
-        placeholder="All"
+        placeholder={t('filters.all')}
         options={
           categories?.map((c) => ({ value: c.id, label: c.name })) || []
         }
@@ -93,7 +95,7 @@ export function TodoFilters({ filters, onFilterChange }: TodoFiltersProps) {
             dueFilter: val || undefined,
           });
         }}
-        placeholder="Any time"
+        placeholder={t('filters.anyTime')}
         options={[
           { value: 'today', label: 'Today' },
           { value: 'upcoming', label: 'Upcoming' },
@@ -137,7 +139,7 @@ export function TodoFilters({ filters, onFilterChange }: TodoFiltersProps) {
             sharedWithMe: val === '' ? undefined : val === 'true',
           });
         }}
-        placeholder="All"
+        placeholder={t('filters.all')}
         options={[
           { value: 'false', label: 'Owned by me' },
           { value: 'true', label: 'Shared with me' },

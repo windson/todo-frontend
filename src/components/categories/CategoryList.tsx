@@ -2,6 +2,7 @@ import { Edit2, Trash2, FolderOpen } from 'lucide-react';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Spinner } from '@/components/ui/Spinner';
 import type { Category } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface CategoryListProps {
   categories: Category[];
@@ -12,6 +13,7 @@ interface CategoryListProps {
 }
 
 export function CategoryList({ categories, isLoading, onEdit, onDelete, onAdd }: CategoryListProps) {
+  const { t } = useTranslation();
   if (isLoading) {
     return (
       <div className="py-12">
@@ -24,7 +26,7 @@ export function CategoryList({ categories, isLoading, onEdit, onDelete, onAdd }:
     return (
       <EmptyState
         icon={<FolderOpen className="h-12 w-12" />}
-        title="No categories yet"
+        title={t('categories.emptyTitle')}
         description="Create categories to organize your todos."
         actionLabel="Add Category"
         onAction={onAdd}
@@ -60,14 +62,14 @@ export function CategoryList({ categories, isLoading, onEdit, onDelete, onAdd }:
               <button
                 onClick={() => onEdit(category)}
                 className="p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/20 transition-colors"
-                aria-label="Edit category"
+                aria-label={t('categories.edit')}
               >
                 <Edit2 className="h-4 w-4" />
               </button>
               <button
                 onClick={() => onDelete(category.id)}
                 className="p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/20 transition-colors"
-                aria-label="Delete category"
+                aria-label={t('categories.delete')}
               >
                 <Trash2 className="h-4 w-4" />
               </button>

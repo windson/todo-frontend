@@ -6,6 +6,7 @@ import { useBulkUpdate } from '@/hooks/useTodos';
 import { useCategories } from '@/hooks/useCategories';
 import { useTags } from '@/hooks/useTags';
 import { Priority, type BulkUpdateInput } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface BulkToolbarProps {
   selectedIds: string[];
@@ -20,6 +21,7 @@ const priorityOptions = [
 ];
 
 export function BulkToolbar({ selectedIds, onClear }: BulkToolbarProps) {
+  const { t } = useTranslation();
   const bulkUpdate = useBulkUpdate();
   const { data: categories } = useCategories();
   const { data: tags } = useTags();
@@ -58,9 +60,9 @@ export function BulkToolbar({ selectedIds, onClear }: BulkToolbarProps) {
 
         {/* Re-prioritize */}
         <Select
-          aria-label="Set priority"
+          aria-label={t('bulk.setPriority')}
           value=""
-          placeholder="Set priority..."
+          placeholder={t('bulk.setPriorityPlaceholder')}
           onChange={(e) => {
             const value = e.target.value;
             if (value) run({ operation: 'setPriority', ids: selectedIds, priority: value as Priority });
@@ -71,9 +73,9 @@ export function BulkToolbar({ selectedIds, onClear }: BulkToolbarProps) {
 
         {/* Re-categorize */}
         <Select
-          aria-label="Set category"
+          aria-label={t('bulk.setCategory')}
           value=""
-          placeholder="Set category..."
+          placeholder={t('bulk.setCategoryPlaceholder')}
           onChange={(e) => {
             const value = e.target.value;
             if (value === '__clear__') {
@@ -91,7 +93,7 @@ export function BulkToolbar({ selectedIds, onClear }: BulkToolbarProps) {
 
         {/* Re-tag: choose add vs remove, then pick a tag to apply */}
         <Select
-          aria-label="Tag action"
+          aria-label={t('bulk.tagAction')}
           value={tagAction}
           onChange={(e) => setTagAction(e.target.value as 'addTags' | 'removeTags')}
           options={[
@@ -101,9 +103,9 @@ export function BulkToolbar({ selectedIds, onClear }: BulkToolbarProps) {
           className="h-9 w-32"
         />
         <Select
-          aria-label="Apply tag"
+          aria-label={t('bulk.applyTag')}
           value=""
-          placeholder="Select tag..."
+          placeholder={t('bulk.selectTagPlaceholder')}
           onChange={(e) => {
             const value = e.target.value;
             if (value) run({ operation: tagAction, ids: selectedIds, tagIds: [value] });

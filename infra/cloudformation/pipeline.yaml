@@ -20,14 +20,14 @@ Parameters:
     Description: Git source cloned by CodeBuild.
   SourceBranch:
     Type: String
-    Default: "feat/aws-iac-cicd"
+    Default: "feat/todo-frontend-scaffold"
     Description: Git branch CodeBuild builds from.
   ViteApiUrl:
     Type: String
-    Default: "https://example.execute-api.amazonaws.com/api"
     Description: >-
-      The backend API base URL baked into the SPA at build time (the backend
-      Lambda Web Function endpoint HTTPS URL + /api). This is a public config
+      Required, no default. The backend API base URL baked into the SPA at
+      build time (the backend Lambda Web Function endpoint HTTPS URL + /api).
+      This is a public config
       value embedded in client-side assets, NOT a secret.
 
 Resources:

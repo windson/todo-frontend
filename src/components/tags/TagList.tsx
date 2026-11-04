@@ -2,6 +2,7 @@ import { Edit2, Trash2, TagsIcon } from 'lucide-react';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Spinner } from '@/components/ui/Spinner';
 import type { Tag } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface TagListProps {
   tags: Tag[];
@@ -12,6 +13,7 @@ interface TagListProps {
 }
 
 export function TagList({ tags, isLoading, onEdit, onDelete, onAdd }: TagListProps) {
+  const { t } = useTranslation();
   if (isLoading) {
     return (
       <div className="py-12">
@@ -24,7 +26,7 @@ export function TagList({ tags, isLoading, onEdit, onDelete, onAdd }: TagListPro
     return (
       <EmptyState
         icon={<TagsIcon className="h-12 w-12" />}
-        title="No tags yet"
+        title={t('tags.emptyTitle')}
         description="Create tags to label and filter your todos."
         actionLabel="Add Tag"
         onAction={onAdd}
@@ -55,14 +57,14 @@ export function TagList({ tags, isLoading, onEdit, onDelete, onAdd }: TagListPro
             <button
               onClick={() => onEdit(tag)}
               className="p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/20 transition-colors"
-              aria-label="Edit tag"
+              aria-label={t('tags.edit')}
             >
               <Edit2 className="h-3 w-3" />
             </button>
             <button
               onClick={() => onDelete(tag.id)}
               className="p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/20 transition-colors"
-              aria-label="Delete tag"
+              aria-label={t('tags.delete')}
             >
               <Trash2 className="h-3 w-3" />
             </button>

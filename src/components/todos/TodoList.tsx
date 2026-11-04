@@ -19,6 +19,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Spinner } from '@/components/ui/Spinner';
 import { ListTodo } from 'lucide-react';
 import type { Todo } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface TodoListProps {
   todos: Todo[];
@@ -100,6 +101,7 @@ export function TodoList({
   onSelectChange,
   reorderEnabled = false,
 }: TodoListProps) {
+  const { t } = useTranslation();
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -126,7 +128,7 @@ export function TodoList({
     return (
       <EmptyState
         icon={<ListTodo className="h-12 w-12" />}
-        title="No todos found"
+        title={t('todos.emptyTitle')}
         description="Create your first todo to get started or adjust your filters."
         actionLabel={onAddTodo ? 'Add Todo' : undefined}
         onAction={onAddTodo}

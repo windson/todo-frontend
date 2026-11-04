@@ -9,6 +9,7 @@ import {
 } from '@/hooks/useSavedViews';
 import { toSavedViewFilters, fromSavedViewFilters } from '@/lib/savedViews';
 import type { TodoFilters } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface SavedViewsProps {
   filters: TodoFilters;
@@ -16,6 +17,7 @@ interface SavedViewsProps {
 }
 
 export function SavedViews({ filters, onApply }: SavedViewsProps) {
+  const { t } = useTranslation();
   const { data: views } = useSavedViews();
   const createView = useCreateSavedView();
   const deleteView = useDeleteSavedView();
@@ -58,7 +60,7 @@ export function SavedViews({ filters, onApply }: SavedViewsProps) {
           </button>
           <button
             type="button"
-            aria-label={`Delete view ${view.name}`}
+            aria-label={t('savedViews.delete', { name: view.name })}
             onClick={() => deleteView.mutate(view.id)}
             className="rounded-full p-0.5 text-gray-400 hover:bg-gray-200 hover:text-red-600 dark:hover:bg-gray-700"
           >
@@ -70,8 +72,8 @@ export function SavedViews({ filters, onApply }: SavedViewsProps) {
       {isNaming ? (
         <div className="flex items-center gap-1">
           <Input
-            aria-label="View name"
-            placeholder="View name"
+            aria-label={t('savedViews.viewName')}
+            placeholder={t('savedViews.viewName')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => {

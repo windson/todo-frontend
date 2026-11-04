@@ -26,15 +26,14 @@ phases:
   build:
     commands:
       - export PATH="$HOME/.bun/bin:$PATH"
-      # Guard: VITE_API_URL is baked into the SPA at build time. Fail if it is
-      # unset or still the unedited ViteApiUrl parameter default
-      # (https://example.execute-api.amazonaws.com/api), instead of silently
-      # shipping a SPA that calls a non-existent backend. Anchored on the known
-      # default host rather than a bare "*example.*" substring, which would also
-      # reject legitimate URLs such as https://myexample.io/api.
+      # Guard: VITE_API_URL is baked into the SPA at build time. The ViteApiUrl
+      # pipeline parameter is required (no default); fail if it is empty or
+      # still the old placeholder host (https://example.execute-api...), instead
+      # of silently shipping a SPA that calls a non-existent backend. Anchored on
+      # that host so legitimate URLs such as https://myexample.io/api pass.
       - |
         case "${VITE_API_URL:-}" in
-          ""|https://example.execute-api.*) echo "ERROR: VITE_API_URL is empty or still the default placeholder (https://example.execute-api...); set the ViteApiUrl pipeline parameter to the real backend API URL." >&2; exit 1 ;;
+          ""|https://example.execute-api.*) echo "ERROR: VITE_API_URL is empty or still the old placeholder (https://example.execute-api...); set the ViteApiUrl pipeline parameter to the real backend API URL." >&2; exit 1 ;;
         esac
       # Production build. VITE_API_URL is referenced ONLY here so Vite bakes the
       # backend API base URL into the static assets at build time.

@@ -4,6 +4,7 @@ import { useUnreadNotifications, useMarkNotification } from '@/hooks/useNotifica
 import { formatRelative } from '@/lib/dates';
 import { cn } from '@/lib/utils';
 import type { Notification } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 function notificationTitle(notification: Notification): string {
   const payload = notification.payload ?? {};
@@ -15,6 +16,7 @@ function notificationTitle(notification: Notification): string {
 }
 
 export function NotificationsBell() {
+  const { t } = useTranslation();
   const { data: notifications } = useUnreadNotifications();
   const markMutation = useMarkNotification();
   const [open, setOpen] = useState(false);
@@ -39,7 +41,7 @@ export function NotificationsBell() {
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-        aria-label="Notifications"
+        aria-label={t('notifications.bell')}
         aria-haspopup="menu"
         aria-expanded={open}
       >
@@ -47,7 +49,7 @@ export function NotificationsBell() {
         {unreadCount > 0 && (
           <span
             className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-semibold text-white"
-            aria-label={`${unreadCount} unread notifications`}
+            aria-label={t('notifications.unreadCount', { count: unreadCount })}
           >
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
@@ -101,8 +103,8 @@ export function NotificationsBell() {
                     onClick={() => markMutation.mutate({ id: notification.id, read: true })}
                     disabled={markMutation.isPending}
                     className="mt-0.5 shrink-0 rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-green-600 dark:hover:bg-gray-700 disabled:opacity-50"
-                    aria-label="Mark as read"
-                    title="Mark as read"
+                    aria-label={t('notifications.markAsRead')}
+                    title={t('notifications.markAsRead')}
                   >
                     <Check className="h-4 w-4" />
                   </button>

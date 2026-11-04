@@ -19,10 +19,12 @@ import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { cn, getPriorityColor } from '@/lib/utils';
 import type { CreateTodoInput, Todo, UpdateTodoInput } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function Calendar() {
+  const { t } = useTranslation();
   const [cursor, setCursor] = useState(() => new Date());
   const [showForm, setShowForm] = useState(false);
 
@@ -89,7 +91,7 @@ export function Calendar() {
             variant="secondary"
             size="sm"
             onClick={() => setCursor((c) => subMonths(c, 1))}
-            aria-label="Previous month"
+            aria-label={t('calendar.previousMonth')}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -100,7 +102,7 @@ export function Calendar() {
             variant="secondary"
             size="sm"
             onClick={() => setCursor((c) => addMonths(c, 1))}
-            aria-label="Next month"
+            aria-label={t('calendar.nextMonth')}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
