@@ -26,6 +26,16 @@ phases:
   build:
     commands:
       - export PATH="$HOME/.bun/bin:$PATH"
+      # Guard: VITE_API_URL is baked into the SPA at build time. Fail if it is
+      # unset or still the unedited ViteApiUrl parameter default
+      # (https://example.execute-api.amazonaws.com/api), instead of silently
+      # shipping a SPA that calls a non-existent backend. Anchored on the known
+      # default host rather than a bare "*example.*" substring, which would also
+      # reject legitimate URLs such as https://myexample.io/api.
+      - |
+        case "${VITE_API_URL:-}" in
+          ""|https://example.execute-api.*) echo "ERROR: VITE_API_URL is empty or still the default placeholder (https://example.execute-api...); set the ViteApiUrl pipeline parameter to the real backend API URL." >&2; exit 1 ;;
+        esac
       # Production build. VITE_API_URL is referenced ONLY here so Vite bakes the
       # backend API base URL into the static assets at build time.
       - VITE_API_URL="$VITE_API_URL" bun run build
@@ -38,7 +48,17 @@ phases:
       # loads `index.js` at the archive ROOT, so it must sit at the top level of
       # the zip. The server uses Node built-ins only, so no node_modules are
       # bundled. See infra/README.md ("Why a Node server for a static SPA?").
-      - ARTIFACT_KEY="todo-frontend/${CODEBUILD_RESOLVED_SOURCE_VERSION}.zip"
+      # Artifact key. CODEBUILD_RESOLVED_SOURCE_VERSION is the commit SHA for a
+      # GitHub source but is EMPTY for an S3 source, which used to produce the
+      # literal key "todo-frontend/.zip". Fall back to build number + epoch seconds
+      # (unique per build) and fail loudly if SRC_VERSION is still empty before
+      # it is concatenated into the key (the fallback always sets a non-empty
+      # value, so this is a defense-in-depth check, not reachable in practice).
+      - |
+        SRC_VERSION="${CODEBUILD_RESOLVED_SOURCE_VERSION:-}"
+        if [ -z "$SRC_VERSION" ]; then SRC_VERSION="build-${CODEBUILD_BUILD_NUMBER:-0}-$(date +%s)"; fi
+        if [ -z "$SRC_VERSION" ]; then echo "ERROR: could not derive a non-empty source version for the artifact key; refusing to upload." >&2; exit 1; fi
+        ARTIFACT_KEY="todo-frontend/${SRC_VERSION}.zip"
       - zip -r -q app.zip dist index.js package.json
       # Fail the build if the entry is not at the archive root; the runtime
       # loads index.js and would otherwise 502 with Runtime.ImportCodeError.
