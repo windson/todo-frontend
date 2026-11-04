@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import type { Analytics, CountBucket, TrendPoint } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Lightweight, dependency-free analytics visualizations built from CSS/SVG so
@@ -83,6 +84,7 @@ function HorizontalBars({
 
 /** Vertical mini bar chart of the completion trend over the window. */
 function TrendBars({ trend }: { trend: TrendPoint[] }) {
+  const { t } = useTranslation();
   const max = Math.max(1, ...trend.map((p) => Math.max(p.completed, p.created)));
   const hasData = trend.some((p) => p.completed > 0 || p.created > 0);
 
@@ -91,13 +93,13 @@ function TrendBars({ trend }: { trend: TrendPoint[] }) {
       <div
         className="flex items-end gap-0.5 h-32"
         role="img"
-        aria-label="Completion trend"
+        aria-label={t('analytics.completionTrend')}
       >
         {trend.map((point) => (
           <div
             key={point.date}
             className="flex-1 flex flex-col justify-end gap-0.5 group relative"
-            title={`${point.date}: ${point.completed} completed, ${point.created} created`}
+            title={t('analytics.pointTitle', { date: point.date, completed: point.completed, created: point.created })}
           >
             <div
               className="w-full rounded-t bg-green-500 dark:bg-green-400"
@@ -128,21 +130,22 @@ function TrendBars({ trend }: { trend: TrendPoint[] }) {
 }
 
 export function AnalyticsCharts({ analytics }: { analytics: Analytics }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4">
-      <ChartCard title={`Completion trend (last ${analytics.rangeDays} days)`}>
+      <ChartCard title={t('analytics.completionTrendRange', { days: analytics.rangeDays })}>
         <TrendBars trend={analytics.trend} />
       </ChartCard>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ChartCard title="By priority">
+        <ChartCard title={t('analytics.byPriority')}>
           <HorizontalBars
             buckets={analytics.byPriority}
             colors={PRIORITY_COLORS}
             emptyLabel="No todos yet"
           />
         </ChartCard>
-        <ChartCard title="By status">
+        <ChartCard title={t('analytics.byStatus')}>
           <HorizontalBars
             buckets={analytics.byStatus}
             colors={STATUS_COLORS}
@@ -151,7 +154,7 @@ export function AnalyticsCharts({ analytics }: { analytics: Analytics }) {
         </ChartCard>
       </div>
 
-      <ChartCard title="By category">
+      <ChartCard title={t('analytics.byCategory')}>
         <HorizontalBars
           buckets={analytics.byCategory}
           emptyLabel="No categorized todos yet"

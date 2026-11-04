@@ -13,6 +13,7 @@ import {
 import { useUpdateTodo } from '@/hooks/useTodos';
 import { useAuth } from '@/hooks/useAuth';
 import { ShareRole, type Todo } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface SharePanelProps {
   todo: Todo;
@@ -26,6 +27,7 @@ interface SharePanelProps {
  * owner or any shared user. Reuses the existing ui primitives.
  */
 export function SharePanel({ todo, canManage }: SharePanelProps) {
+  const { t } = useTranslation();
   const { data: shares, isLoading } = useShares(todo.id);
   const createShare = useCreateShare(todo.id);
   const updateShare = useUpdateShare(todo.id);
@@ -135,7 +137,7 @@ export function SharePanel({ todo, canManage }: SharePanelProps) {
                         })
                       }
                       className="rounded border border-gray-300 bg-white px-2 py-1 text-xs dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-                      aria-label={`Role for ${share.user.email}`}
+                      aria-label={t('share.roleFor', { email: share.user.email })}
                     >
                       <option value={ShareRole.VIEWER}>Viewer</option>
                       <option value={ShareRole.EDITOR}>Editor</option>
@@ -143,7 +145,7 @@ export function SharePanel({ todo, canManage }: SharePanelProps) {
                     <button
                       onClick={() => deleteShare.mutate(share.userId)}
                       className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-                      aria-label={`Remove ${share.user.email}`}
+                      aria-label={t('share.remove', { email: share.user.email })}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

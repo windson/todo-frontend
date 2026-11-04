@@ -10,6 +10,7 @@ import {
   useUpdateComment,
   useDeleteComment,
 } from '@/hooks/useComments';
+import { useTranslation } from 'react-i18next';
 
 interface CommentThreadProps {
   todoId: string;
@@ -18,6 +19,7 @@ interface CommentThreadProps {
 }
 
 export function CommentThread({ todoId, readOnly = false }: CommentThreadProps) {
+  const { t } = useTranslation();
   const { data: comments, isLoading } = useComments(todoId);
   const createComment = useCreateComment(todoId);
   const updateComment = useUpdateComment(todoId);
@@ -74,14 +76,14 @@ export function CommentThread({ todoId, readOnly = false }: CommentThreadProps) 
                       <button
                         onClick={() => saveEdit(comment.id)}
                         className="p-1 text-gray-400 hover:text-green-600 dark:hover:text-green-400"
-                        aria-label="Save comment"
+                        aria-label={t('comments.save')}
                       >
                         <Check className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => setEditingId(null)}
                         className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                        aria-label="Cancel edit"
+                        aria-label={t('comments.cancelEdit')}
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -91,14 +93,14 @@ export function CommentThread({ todoId, readOnly = false }: CommentThreadProps) 
                       <button
                         onClick={() => startEdit(comment.id, comment.body)}
                         className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
-                        aria-label="Edit comment"
+                        aria-label={t('comments.edit')}
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => deleteComment.mutate(comment.id)}
                         className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-                        aria-label="Delete comment"
+                        aria-label={t('comments.delete')}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -129,8 +131,8 @@ export function CommentThread({ todoId, readOnly = false }: CommentThreadProps) 
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             rows={3}
-            placeholder="Add a comment (markdown supported)..."
-            aria-label="Add a comment"
+            placeholder={t('comments.placeholder')}
+            aria-label={t('comments.addLabel')}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
           />
           <div className="flex justify-end">

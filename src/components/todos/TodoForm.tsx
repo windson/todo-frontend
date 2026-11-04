@@ -8,6 +8,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useTags } from '@/hooks/useTags';
 import { Priority, RecurrenceRule, type Todo, type CreateTodoInput, type UpdateTodoInput } from '@/types';
 import { toInputDateFormat } from '@/lib/dates';
+import { useTranslation } from 'react-i18next';
 
 interface TodoFormProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ interface TodoFormProps {
 }
 
 export function TodoForm({ isOpen, onClose, onSubmit, isLoading, todo }: TodoFormProps) {
+  const { t } = useTranslation();
   const { data: categories } = useCategories();
   const { data: tags } = useTags();
 
@@ -116,7 +118,7 @@ export function TodoForm({ isOpen, onClose, onSubmit, isLoading, todo }: TodoFor
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label="Title"
-          placeholder="What needs to be done?"
+          placeholder={t('todoForm.titlePlaceholder')}
           value={title}
           onChange={(e) => {
             setTitle(e.target.value);
@@ -135,7 +137,7 @@ export function TodoForm({ isOpen, onClose, onSubmit, isLoading, todo }: TodoFor
           </label>
           <textarea
             id="description"
-            placeholder="Add details..."
+            placeholder={t('todoForm.descriptionPlaceholder')}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
@@ -160,7 +162,7 @@ export function TodoForm({ isOpen, onClose, onSubmit, isLoading, todo }: TodoFor
             label="Category"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            placeholder="None"
+            placeholder={t('todoForm.none')}
             options={
               categories?.map((c) => ({ value: c.id, label: c.name })) || []
             }
@@ -188,7 +190,7 @@ export function TodoForm({ isOpen, onClose, onSubmit, isLoading, todo }: TodoFor
             label="Repeat"
             value={recurrenceRule}
             onChange={(e) => setRecurrenceRule(e.target.value as RecurrenceRule | '')}
-            placeholder="Does not repeat"
+            placeholder={t('todoForm.doesNotRepeat')}
             options={[
               { value: RecurrenceRule.DAILY, label: 'Daily' },
               { value: RecurrenceRule.WEEKLY, label: 'Weekly' },

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Markdown } from '@/components/ui/Markdown';
 import { SubtaskList } from './SubtaskList';
 import type { Todo } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface TodoItemProps {
   todo: Todo;
@@ -21,6 +22,7 @@ interface TodoItemProps {
 }
 
 export function TodoItem({ todo, onToggle, onEdit, onDelete, onOpenDetail, dragHandleProps, selectable, selected, onSelectChange }: TodoItemProps) {
+  const { t } = useTranslation();
   const overdue = todo.dueDate && !todo.completed && isOverdue(todo.dueDate);
 
   return (
@@ -38,7 +40,7 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onOpenDetail, dragH
           <Checkbox
             checked={Boolean(selected)}
             onChange={(checked) => onSelectChange?.(todo.id, checked)}
-            aria-label={`Select ${todo.title}`}
+            aria-label={t('todoItem.select', { title: todo.title })}
           />
         </div>
       )}
@@ -78,7 +80,7 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onOpenDetail, dragH
               <button
                 onClick={() => onOpenDetail(todo)}
                 className="p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/20 transition-colors"
-                aria-label="Open todo details"
+                aria-label={t('todoItem.openDetails')}
               >
                 <MessageSquare className="h-4 w-4" />
               </button>
@@ -86,14 +88,14 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onOpenDetail, dragH
             <button
               onClick={() => onEdit(todo)}
               className="p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/20 transition-colors"
-              aria-label="Edit todo"
+              aria-label={t('todoItem.edit')}
             >
               <Edit2 className="h-4 w-4" />
             </button>
             <button
               onClick={() => onDelete(todo.id)}
               className="p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/20 transition-colors"
-              aria-label="Delete todo"
+              aria-label={t('todoItem.delete')}
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -148,7 +150,7 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onOpenDetail, dragH
           {todo.assignee && (
             <span
               className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
-              title={`Assigned to ${todo.assignee.name ?? todo.assignee.email}`}
+              title={t('todoItem.assignedTo', { name: todo.assignee.name ?? todo.assignee.email })}
             >
               <UserCircle className="h-3 w-3" />
               {todo.assignee.name ?? todo.assignee.email}
@@ -158,7 +160,7 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onOpenDetail, dragH
           {todo.shares && todo.shares.length > 0 && (
             <span
               className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300"
-              title={`Shared with ${todo.shares.length} ${todo.shares.length === 1 ? 'person' : 'people'}`}
+              title={t('todoItem.sharedWith', { count: todo.shares.length })}
             >
               Shared · {todo.shares.length}
             </span>

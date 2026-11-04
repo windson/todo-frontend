@@ -3,6 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import type { Tag, CreateTagInput } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface TagFormProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ const defaultColors = [
 ];
 
 export function TagForm({ isOpen, onClose, onSubmit, isLoading, tag }: TagFormProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState(tag?.name || '');
   const [color, setColor] = useState(tag?.color || defaultColors[0]);
   const [nameError, setNameError] = useState('');
@@ -52,7 +54,7 @@ export function TagForm({ isOpen, onClose, onSubmit, isLoading, tag }: TagFormPr
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label="Name"
-          placeholder="Tag name"
+          placeholder={t('tags.namePlaceholder')}
           value={name}
           onChange={(e) => {
             setName(e.target.value);
@@ -76,7 +78,7 @@ export function TagForm({ isOpen, onClose, onSubmit, isLoading, tag }: TagFormPr
                   color === c ? 'border-gray-900 dark:border-white scale-110' : 'border-transparent hover:scale-105'
                 }`}
                 style={{ backgroundColor: c }}
-                aria-label={`Select color ${c}`}
+                aria-label={t('tags.selectColor', { color: c })}
               />
             ))}
           </div>

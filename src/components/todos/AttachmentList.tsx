@@ -8,6 +8,7 @@ import {
   useCreateAttachment,
   useDeleteAttachment,
 } from '@/hooks/useAttachments';
+import { useTranslation } from 'react-i18next';
 
 interface AttachmentListProps {
   todoId: string;
@@ -23,6 +24,7 @@ function formatSize(size: number | null): string {
 }
 
 export function AttachmentList({ todoId, readOnly = false }: AttachmentListProps) {
+  const { t } = useTranslation();
   const { data: attachments, isLoading } = useAttachments(todoId);
   const createAttachment = useCreateAttachment(todoId);
   const deleteAttachment = useDeleteAttachment(todoId);
@@ -80,7 +82,7 @@ export function AttachmentList({ todoId, readOnly = false }: AttachmentListProps
                 <button
                   onClick={() => deleteAttachment.mutate(attachment.id)}
                   className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-                  aria-label="Remove attachment"
+                  aria-label={t('attachments.remove')}
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>

@@ -14,6 +14,7 @@ import { Select } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
 import { cn, getPriorityColor, getPriorityLabel } from '@/lib/utils';
 import { Priority, type Todo } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 type BoardMode = 'status' | 'priority';
 
@@ -120,6 +121,7 @@ function BoardColumn({ column, todos }: { column: Column; todos: Todo[] }) {
 }
 
 export function Board() {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<BoardMode>('status');
   const { data, isLoading } = useTodos({ limit: 100, sortBy: 'createdAt', sortOrder: 'desc' });
   const updateTodo = useUpdateTodo();
@@ -156,7 +158,7 @@ export function Board() {
         </div>
         <div className="w-44">
           <Select
-            aria-label="Group by"
+            aria-label={t('board.groupBy')}
             value={mode}
             onChange={(e) => setMode(e.target.value as BoardMode)}
             options={[

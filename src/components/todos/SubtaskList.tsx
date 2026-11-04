@@ -4,12 +4,14 @@ import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { useCreateTodo, useUpdateTodo, useDeleteTodo } from '@/hooks/useTodos';
 import type { Todo } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface SubtaskListProps {
   todo: Todo;
 }
 
 export function SubtaskList({ todo }: SubtaskListProps) {
+  const { t } = useTranslation();
   const subtasks = todo.children ?? [];
   const total = todo.progress?.total ?? subtasks.length;
   const completed =
@@ -73,7 +75,7 @@ export function SubtaskList({ todo }: SubtaskListProps) {
                 aria-valuenow={percent}
                 aria-valuemin={0}
                 aria-valuemax={100}
-                aria-label="Subtask progress"
+                aria-label={t('subtasks.progress')}
               />
             </div>
           </div>
@@ -121,7 +123,7 @@ export function SubtaskList({ todo }: SubtaskListProps) {
                 type="button"
                 onClick={() => deleteTodo.mutate(subtask.id)}
                 className="p-0.5 rounded text-gray-400 opacity-0 group-hover/sub:opacity-100 hover:text-red-600 dark:hover:text-red-400 transition-all"
-                aria-label="Delete subtask"
+                aria-label={t('subtasks.delete')}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
@@ -143,8 +145,8 @@ export function SubtaskList({ todo }: SubtaskListProps) {
                 setNewTitle('');
               }
             }}
-            placeholder="New subtask"
-            aria-label="New subtask title"
+            placeholder={t('subtasks.newPlaceholder')}
+            aria-label={t('subtasks.newTitle')}
             className={cn(
               'flex-1 rounded-md border border-gray-300 px-2 py-1 text-xs transition-colors',
               'placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20',
@@ -166,7 +168,7 @@ export function SubtaskList({ todo }: SubtaskListProps) {
               setNewTitle('');
             }}
             className="p-1 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            aria-label="Cancel adding subtask"
+            aria-label={t('subtasks.cancelAdd')}
           >
             <X className="h-3.5 w-3.5" />
           </button>

@@ -3,6 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import type { Category, CreateCategoryInput } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface CategoryFormProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ const defaultColors = [
 ];
 
 export function CategoryForm({ isOpen, onClose, onSubmit, isLoading, category }: CategoryFormProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState(category?.name || '');
   const [color, setColor] = useState(category?.color || defaultColors[0]);
   const [nameError, setNameError] = useState('');
@@ -52,7 +54,7 @@ export function CategoryForm({ isOpen, onClose, onSubmit, isLoading, category }:
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label="Name"
-          placeholder="Category name"
+          placeholder={t('categories.namePlaceholder')}
           value={name}
           onChange={(e) => {
             setName(e.target.value);
@@ -76,7 +78,7 @@ export function CategoryForm({ isOpen, onClose, onSubmit, isLoading, category }:
                   color === c ? 'border-gray-900 dark:border-white scale-110' : 'border-transparent hover:scale-105'
                 }`}
                 style={{ backgroundColor: c }}
-                aria-label={`Select color ${c}`}
+                aria-label={t('categories.selectColor', { color: c })}
               />
             ))}
           </div>

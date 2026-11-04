@@ -10,6 +10,7 @@ import {
 } from '@/hooks/useReminders';
 import { ReminderChannel } from '@/types';
 import { formatDateTime } from '@/lib/dates';
+import { useTranslation } from 'react-i18next';
 
 interface RemindersSectionProps {
   todoId: string;
@@ -22,6 +23,7 @@ const CHANNEL_LABELS: Record<ReminderChannel, string> = {
 };
 
 export function RemindersSection({ todoId }: RemindersSectionProps) {
+  const { t } = useTranslation();
   const { data: reminders, isLoading } = useReminders(todoId);
   const createMutation = useCreateReminder(todoId);
   const deleteMutation = useDeleteReminder(todoId);
@@ -76,7 +78,7 @@ export function RemindersSection({ todoId }: RemindersSectionProps) {
                 onClick={() => deleteMutation.mutate(reminder.id)}
                 disabled={deleteMutation.isPending}
                 className="shrink-0 rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-red-600 dark:hover:bg-gray-700 disabled:opacity-50"
-                aria-label="Delete reminder"
+                aria-label={t('reminders.delete')}
               >
                 <Trash2 className="h-4 w-4" />
               </button>

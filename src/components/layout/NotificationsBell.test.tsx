@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import type { Notification } from '@/types';
+import i18n from '@/i18n/config';
 
 const getNotificationsMock = vi.fn();
 const markNotificationMock = vi.fn();
@@ -38,7 +39,8 @@ function renderWithClient(ui: ReactNode) {
   );
 }
 
-beforeEach(() => {
+beforeEach(async () => {
+  await i18n.changeLanguage('en');
   getNotificationsMock.mockReset();
   markNotificationMock.mockReset();
 });
@@ -92,6 +94,33 @@ describe('NotificationsBell', () => {
 
     await waitFor(() => {
       expect(screen.getByText("You're all caught up.")).toBeInTheDocument();
+    });
+  });
+
+  it('localizes the bell, badge and mark-as-read labels (en and es)', async () => {
+    getNotificationsMock.mockResolvedValue([makeNotification()]);
+
+    renderWithClient(<NotificationsBell />);
+
+    // English (default).
+    fireEvent.click(await screen.findByLabelText('Notifications'));
+    expect(await screen.findByLabelText('1 unread notifications')).toBeInTheDocument();
+    expect(screen.getByLabelText('Mark as read')).toHaveAttribute('title', 'Mark as read');
+
+    // Switching to Spanish updates the labels without remounting.
+    await act(async () => {
+      await i18n.changeLanguage('es');
+    });
+    expect(screen.getByLabelText('Notificaciones')).toBeInTheDocument();
+    expect(screen.getByLabelText('1 notificaciones sin leer')).toBeInTheDocument();
+    expect(screen.getByLabelText('Marcar como leída')).toHaveAttribute(
+      'title',
+      'Marcar como leída'
+    );
+    expect(screen.queryByLabelText('Notifications')).not.toBeInTheDocument();
+
+    await act(async () => {
+      await i18n.changeLanguage('en');
     });
   });
 });
