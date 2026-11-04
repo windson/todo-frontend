@@ -49,4 +49,13 @@ void i18n.use(initReactI18next).init({
   },
 });
 
+// Keep <html lang> in sync with the active locale (accessibility / SEO).
+function syncDocumentLang(lng: string): void {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = lng;
+  }
+}
+syncDocumentLang(getInitialLocale());
+i18n.on('languageChanged', syncDocumentLang);
+
 export default i18n;

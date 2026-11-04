@@ -39,4 +39,9 @@ describe('LanguageSwitcher', () => {
     expect(screen.getByTestId('probe')).toHaveTextContent('Panel');
     expect(localStorage.getItem('locale')).toBe('es');
   });
+
+  it('keeps <html lang> in sync with the locale', async () => {
+    await i18n.changeLanguage('es');
+    expect(document.documentElement.lang).toBe('es');
+  });
 });
