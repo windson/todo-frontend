@@ -150,13 +150,11 @@ started from a source zip uploaded to S3 (`--source-type-override S3
   source, `StartBuild` must be given `--source-type-override S3
   --source-location-override <ArtifactBucketName>/src/<name>.zip
   --source-version <VersionId>` (the `VersionId` from the `head-object` call
-  above; the artifact bucket already has versioning enabled). If
-  `--source-version` is omitted, CodeBuild does not reliably pick up the newly
-  uploaded object and may build a stale one.
+  above; the artifact bucket already has versioning enabled). Always pass
+  it so the build is pinned to the exact object version you uploaded.
 - **`CODEBUILD_RESOLVED_SOURCE_VERSION` is empty for S3 sources** (it is only the
   commit SHA for GitHub sources). The buildspec therefore derives the artifact
-  key as follows, and fails the build (exit 1, message on stderr) if the result
-  would be empty or just `todo-frontend/.zip`:
+  key as follows, so the key is always non-empty by construction:
 
   | Source | Artifact key |
   |--------|--------------|
@@ -168,17 +166,14 @@ started from a source zip uploaded to S3 (`--source-type-override S3
   was S3.
 
 The buildspec also **fails the build before `bun run build`** if `VITE_API_URL`
-is empty or still the unedited `ViteApiUrl` placeholder default
-(`https://example.execute-api.amazonaws.com/api`), so a SPA pointing at a
-placeholder backend is never produced silently. The check is anchored on that
-default host, not a bare substring match for `example.`, so a real API URL
-that happens to contain `example.` (e.g. `https://myexample.io/api`) is not
-rejected. Supply the real backend API URL as the `ViteApiUrl` stack parameter
-(or a CodeBuild environment variable override) at deploy time; never commit it.
+is empty. `ViteApiUrl` is a required stack parameter with no default, so
+`cloudformation deploy` itself fails if it is not supplied. Supply the real
+backend API URL as the `ViteApiUrl` stack parameter (or a CodeBuild
+environment variable override) at deploy time; never commit it.
 
 ## Parameters
 
-- **pipeline.yaml**: `SourceRepositoryUrl`, `SourceBranch` (`feat/aws-iac-cicd`), `ViteApiUrl` (the backend API base URL baked into the SPA at build time; default is a placeholder).
+- **pipeline.yaml**: `SourceRepositoryUrl`, `SourceBranch` (default `feat/todo-frontend-scaffold`), `ViteApiUrl` (**required, no default**: the backend API base URL baked into the SPA at build time).
 - **app.yaml**: `PipelineStackName`, `ArtifactObjectKey`, `Runtime` (`nodejs24.x`), `FunctionName` (`todo-frontend-web`), `Port` (`8080`), `TimeoutSeconds` (`30`).
 
 ## `VITE_API_URL` wiring (build-time only)
