@@ -106,4 +106,11 @@ describe('TodoItem assignee & share badges', () => {
     renderItem(makeTodo());
     expect(screen.queryByText('Casey')).not.toBeInTheDocument();
   });
+
+  it('gives the completion checkbox an accessible name', () => {
+    renderItem(makeTodo({ title: 'Water plants' }));
+    expect(
+      screen.getByRole('checkbox', { name: 'Mark Water plants as complete' })
+    ).toBeInTheDocument();
+  });
 });

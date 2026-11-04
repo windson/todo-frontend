@@ -130,7 +130,18 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return commands;
-    return commands.filter((c) => c.label.toLowerCase().includes(q));
+    // Rank word-prefix matches ahead of plain substring matches so that, for
+    // example, "board" selects "Go to Board" rather than "Go to Dashboard".
+    const score = (label: string) => {
+      const lower = label.toLowerCase();
+      if (lower.split(/\s+/).some((word) => word.startsWith(q))) return 0;
+      return lower.includes(q) ? 1 : -1;
+    };
+    return commands
+      .map((command) => ({ command, rank: score(command.label) }))
+      .filter((entry) => entry.rank >= 0)
+      .sort((a, b) => a.rank - b.rank)
+      .map((entry) => entry.command);
   }, [commands, query]);
 
   useEffect(() => {

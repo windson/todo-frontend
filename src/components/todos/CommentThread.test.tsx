@@ -78,4 +78,17 @@ describe('CommentThread', () => {
       expect(createCommentMock).toHaveBeenCalledWith('todo-1', { body: 'New comment' });
     });
   });
+
+  it('hides compose and edit controls when read-only', async () => {
+    getCommentsMock.mockResolvedValue([makeComment()]);
+
+    renderWithClient(<CommentThread todoId="todo-1" readOnly />);
+
+    await waitFor(() => {
+      expect(screen.getByText('good')).toBeInTheDocument();
+    });
+    expect(screen.queryByLabelText('Add a comment')).toBeNull();
+    expect(screen.queryByLabelText('Edit comment')).toBeNull();
+    expect(screen.queryByLabelText('Delete comment')).toBeNull();
+  });
 });

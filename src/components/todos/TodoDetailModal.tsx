@@ -5,7 +5,7 @@ import { ActivityLog } from './ActivityLog';
 import { AttachmentList } from './AttachmentList';
 import { SharePanel } from './SharePanel';
 import { useAuth } from '@/hooks/useAuth';
-import type { Todo } from '@/types';
+import { ShareRole, type Todo } from '@/types';
 
 interface TodoDetailModalProps {
   todo: Todo | null;
@@ -25,10 +25,11 @@ export function TodoDetailModal({ todo, isOpen, onClose }: TodoDetailModalProps)
   // set. We infer ownership from the shares list: if the current user does not
   // appear as a share member, they are the owner (the backend only returns a
   // todo a user can access). This gates the share-management UI.
-  const isSharedWithMe = Boolean(
-    todo.shares?.some((share) => share.userId === user?.id)
-  );
+  const myShare = todo.shares?.find((share) => share.userId === user?.id);
+  const isSharedWithMe = Boolean(myShare);
   const canManage = !isSharedWithMe;
+  // Viewers are read-only on the backend (403 on writes), so hide write UI.
+  const readOnly = myShare?.role === ShareRole.VIEWER;
 
   return (
     <Modal
@@ -52,8 +53,8 @@ export function TodoDetailModal({ todo, isOpen, onClose }: TodoDetailModalProps)
         </section>
 
         <SharePanel todo={todo} canManage={canManage} />
-        <AttachmentList todoId={todo.id} />
-        <CommentThread todoId={todo.id} />
+        <AttachmentList todoId={todo.id} readOnly={readOnly} />
+        <CommentThread todoId={todo.id} readOnly={readOnly} />
         <ActivityLog todoId={todo.id} />
       </div>
     </Modal>

@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard,
@@ -39,6 +39,7 @@ const smartLists = [
 ] as const;
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const location = useLocation();
   const { t } = useTranslation();
   const { data: categories } = useCategories();
   const { data: tags } = useTags();
@@ -104,10 +105,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   key={item.to}
                   to={item.to}
                   onClick={onClose}
-                  className={({ isActive }) =>
+                  className={() =>
                     cn(
                       'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                      isActive
+                      // NavLink ignores the query string, so compare it ourselves:
+                      // only the smart list matching the current filter is active.
+                      location.pathname + location.search === item.to
                         ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
                         : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
                     )

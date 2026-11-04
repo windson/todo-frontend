@@ -60,4 +60,17 @@ describe('CommandPalette', () => {
 
     expect(navigateMock).toHaveBeenCalledWith('/board');
   });
+
+  it('ranks word-prefix matches first so Enter runs the expected command', async () => {
+    renderWithProviders();
+
+    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+
+    const input = await screen.findByPlaceholderText(/type a command/i);
+    // "board" is also a substring of "Dashboard"; Board must win.
+    fireEvent.change(input, { target: { value: 'board' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(navigateMock).toHaveBeenCalledWith('/board');
+  });
 });

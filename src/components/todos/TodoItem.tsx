@@ -57,6 +57,9 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete, onOpenDetail, dragH
         <Checkbox
           checked={todo.completed}
           onChange={(checked) => onToggle(todo.id, checked)}
+          aria-label={
+            todo.completed ? `Mark ${todo.title} as active` : `Mark ${todo.title} as complete`
+          }
         />
       </div>
 

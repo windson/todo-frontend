@@ -13,9 +13,11 @@ import {
 
 interface CommentThreadProps {
   todoId: string;
+  /** Hide compose/edit/delete controls (e.g. for a todo shared as Viewer). */
+  readOnly?: boolean;
 }
 
-export function CommentThread({ todoId }: CommentThreadProps) {
+export function CommentThread({ todoId, readOnly = false }: CommentThreadProps) {
   const { data: comments, isLoading } = useComments(todoId);
   const createComment = useCreateComment(todoId);
   const updateComment = useUpdateComment(todoId);
@@ -67,7 +69,7 @@ export function CommentThread({ todoId }: CommentThreadProps) {
                   {comment.updatedAt !== comment.createdAt && ' (edited)'}
                 </span>
                 <div className="flex items-center gap-1">
-                  {editingId === comment.id ? (
+                  {readOnly ? null : editingId === comment.id ? (
                     <>
                       <button
                         onClick={() => saveEdit(comment.id)}
@@ -121,26 +123,28 @@ export function CommentThread({ todoId }: CommentThreadProps) {
         <p className="text-sm text-gray-500 dark:text-gray-400">No comments yet.</p>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-2">
-        <textarea
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          rows={3}
-          placeholder="Add a comment (markdown supported)..."
-          aria-label="Add a comment"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
-        />
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            size="sm"
-            loading={createComment.isPending}
-            disabled={!draft.trim()}
-          >
-            Comment
-          </Button>
-        </div>
-      </form>
+      {!readOnly && (
+        <form onSubmit={handleSubmit} className="space-y-2">
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            rows={3}
+            placeholder="Add a comment (markdown supported)..."
+            aria-label="Add a comment"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
+          />
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              size="sm"
+              loading={createComment.isPending}
+              disabled={!draft.trim()}
+            >
+              Comment
+            </Button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }

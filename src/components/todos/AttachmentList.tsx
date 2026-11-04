@@ -11,6 +11,8 @@ import {
 
 interface AttachmentListProps {
   todoId: string;
+  /** Hide add/remove controls (e.g. for a todo shared with the user as Viewer). */
+  readOnly?: boolean;
 }
 
 function formatSize(size: number | null): string {
@@ -20,7 +22,7 @@ function formatSize(size: number | null): string {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function AttachmentList({ todoId }: AttachmentListProps) {
+export function AttachmentList({ todoId, readOnly = false }: AttachmentListProps) {
   const { data: attachments, isLoading } = useAttachments(todoId);
   const createAttachment = useCreateAttachment(todoId);
   const deleteAttachment = useDeleteAttachment(todoId);
@@ -74,13 +76,15 @@ export function AttachmentList({ todoId }: AttachmentListProps) {
                 )}
                 <ExternalLink className="h-3 w-3 flex-shrink-0" />
               </a>
-              <button
-                onClick={() => deleteAttachment.mutate(attachment.id)}
-                className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-                aria-label="Remove attachment"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+              {!readOnly && (
+                <button
+                  onClick={() => deleteAttachment.mutate(attachment.id)}
+                  className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                  aria-label="Remove attachment"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
             </li>
           ))}
         </ul>
@@ -90,31 +94,33 @@ export function AttachmentList({ todoId }: AttachmentListProps) {
         </p>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-2">
-        <Input
-          label="Attachment URL"
-          type="url"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://example.com/file.pdf"
-        />
-        <Input
-          label="Filename (optional)"
-          value={filename}
-          onChange={(e) => setFilename(e.target.value)}
-          placeholder="file.pdf"
-        />
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            size="sm"
-            loading={createAttachment.isPending}
-            disabled={!url.trim()}
-          >
-            Add by URL
-          </Button>
-        </div>
-      </form>
+      {!readOnly && (
+        <form onSubmit={handleSubmit} className="space-y-2">
+          <Input
+            label="Attachment URL"
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://example.com/file.pdf"
+          />
+          <Input
+            label="Filename (optional)"
+            value={filename}
+            onChange={(e) => setFilename(e.target.value)}
+            placeholder="file.pdf"
+          />
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              size="sm"
+              loading={createAttachment.isPending}
+              disabled={!url.trim()}
+            >
+              Add by URL
+            </Button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }
