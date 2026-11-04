@@ -166,7 +166,8 @@ started from a source zip uploaded to S3 (`--source-type-override S3
   was S3.
 
 The buildspec also **fails the build before `bun run build`** if `VITE_API_URL`
-is empty. `ViteApiUrl` is a required stack parameter with no default, so
+is empty or still the old placeholder host (`https://example.execute-api...`).
+`ViteApiUrl` is a required stack parameter with no default, so
 `cloudformation deploy` itself fails if it is not supplied. Supply the real
 backend API URL as the `ViteApiUrl` stack parameter (or a CodeBuild
 environment variable override) at deploy time; never commit it.
